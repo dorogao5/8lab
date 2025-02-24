@@ -1,4 +1,4 @@
-package ru.lab.car;
+package ru.lab.model;
 
 public class Coordinates {
     private long x; //Максимальное значение поля: 225

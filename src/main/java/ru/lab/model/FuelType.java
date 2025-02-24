@@ -1,4 +1,4 @@
-package ru.lab.car;
+package ru.lab.model;
 
 public enum FuelType {
     GASOLINE,
