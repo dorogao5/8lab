@@ -1,8 +1,27 @@
 package ru.lab.model;
 
+/**
+ * Перечисление возможных типов транспортных средств.
+ */
 public enum VehicleType {
+    /**
+     * Лодка.
+     */
     BOAT,
+
+    /**
+     * Мотоцикл типа чоппер.
+     */
     CHOPPER,
+
+    /**
+     * Ховерборд.
+     */
     HOVERBOARD,
-    SPACESHIP;
+
+    /**
+     * Космический корабль.
+     */
+    SPACESHIP
 }
+
