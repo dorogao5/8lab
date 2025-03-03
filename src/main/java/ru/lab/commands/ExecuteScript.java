@@ -1,4 +1,4 @@
 package ru.lab.commands;
 
-public class ExecuteScript {
+public class ExecuteScript extends Command{
 }
