@@ -1,4 +1,4 @@
-package ru.lab.commands;
+package ru.lab.functions.commands;
 
 public class PrintFieldAscendingFuelType {
 }

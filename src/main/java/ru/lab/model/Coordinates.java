@@ -25,21 +25,10 @@ public class Coordinates {
         setY(y);
     }
 
-    /**
-     * Возвращает значение координаты x.
-     *
-     * @return координата x.
-     */
     public long getX() {
         return x;
     }
 
-    /**
-     * Устанавливает значение координаты x.
-     *
-     * @param x значение x (не должно превышать 225).
-     * @throws IllegalArgumentException если x больше 225.
-     */
     public void setX(long x) {
         if (x > 225) {
             throw new IllegalArgumentException("Значение x должно быть не больше 225, получено: " + x);
@@ -47,21 +36,10 @@ public class Coordinates {
         this.x = x;
     }
 
-    /**
-     * Возвращает значение координаты y.
-     *
-     * @return координата y.
-     */
     public Integer getY() {
         return y;
     }
 
-    /**
-     * Устанавливает значение координаты y.
-     *
-     * @param y значение y (не может быть null, не должно превышать 493).
-     * @throws IllegalArgumentException если y равен null или больше 493.
-     */
     public void setY(Integer y) {
         if (y == null) {
             throw new IllegalArgumentException("Значение y не может быть null.");

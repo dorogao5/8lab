@@ -1,4 +1,4 @@
-package ru.lab.commands;
+package ru.lab.functions;
 
 /**
  * Базовый интерфейс для всех команд.

@@ -53,7 +53,7 @@ public class Vehicle {
      * Поскольку id генерируется извне, изменять его после создания не предполагается.
      *
      * @param id уникальный идентификатор (> 0).
-     * @throws IllegalArgumentException если id <= 0.
+     * @throws IllegalArgumentException если id &lt;= 0.
      */
     public void setId(int id) {
         if (id <= 0) {
@@ -120,7 +120,7 @@ public class Vehicle {
      * Устанавливает мощность двигателя.
      *
      * @param enginePower значение должно быть > 0.
-     * @throws IllegalArgumentException если enginePower <= 0.
+     * @throws IllegalArgumentException если enginePower &lt;= 0.
      */
     public void setEnginePower(float enginePower) {
         if (enginePower <= 0) {
