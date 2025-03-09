@@ -4,7 +4,10 @@ import ru.lab.functions.Command;
 import ru.lab.util.CollectionManager;
 import ru.lab.model.Vehicle;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Команда для вывода всех элементов коллекции в строковом представлении.
@@ -22,7 +25,7 @@ public class Show implements Command {
     }
 
     /**
-     * Выполняет команду Show, выводя каждый элемент коллекции.
+     * Выполняет команду Show, выводя каждый элемент коллекции в порядке возрастания id.
      *
      * @param args аргументы команды (не используются).
      */
@@ -34,8 +37,10 @@ public class Show implements Command {
             return;
         }
         System.out.println("Элементы коллекции:");
-        for (Vehicle vehicle : collection.values()) {
-            System.out.println(vehicle.toString());
+        List<Integer> sortedKeys = new ArrayList<>(collection.keySet());
+        Collections.sort(sortedKeys);
+        for (Integer key : sortedKeys) {
+            System.out.println(collection.get(key));
         }
     }
 

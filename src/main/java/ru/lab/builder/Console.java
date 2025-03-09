@@ -36,7 +36,6 @@ public class Console {
             if (input.isEmpty()) continue;
             String[] tokens = input.split("\\s+");
             String commandName = tokens[0];
-            // Регистрируем команду в истории
             invoker.recordCommand(commandName);
             Command command = commands.get(commandName);
             if (command != null) {

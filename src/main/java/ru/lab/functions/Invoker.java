@@ -5,8 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * Класс для регистрации и хранения команд.
- * Используется для вызова команд по их именам и ведения истории выполненных команд.
+ * Класс для регистрации и хранения команд, а также ведения истории выполненных команд.
  */
 public class Invoker {
     private final Map<String, Command> commands;

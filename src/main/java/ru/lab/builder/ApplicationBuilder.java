@@ -7,13 +7,8 @@ import ru.lab.util.CollectionManager;
 import ru.lab.builder.Console;
 import ru.lab.functions.Command;
 import ru.lab.functions.Invoker;
-import ru.lab.functions.commands.Help;
-import ru.lab.functions.commands.Info;
-import ru.lab.functions.commands.Show;
-import ru.lab.functions.commands.Exit;
-import ru.lab.functions.commands.History;
-import ru.lab.functions.commands.Clear;
-import ru.lab.functions.commands.Save;
+import ru.lab.functions.commands.*;
+
 
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -71,7 +66,11 @@ public class ApplicationBuilder {
         invoker.register("history", new History(invoker));
         invoker.register("clear", new Clear(collectionManager));
         invoker.register("save", new Save(fileManager, collectionManager, fileName));
-        // Дополнительная регистрация команд может быть выполнена здесь
+        invoker.register("insert", new Insert(collectionManager, scanner));
+        invoker.register("update", new Update(collectionManager, scanner));
+        invoker.register("remove_key", new RemoveKey(collectionManager));
+        invoker.register("remove_greater", new RemoveGreater(collectionManager, scanner));
+
     }
 
     /**

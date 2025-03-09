@@ -80,7 +80,11 @@ public class FileManager implements IFileManager {
     @Override
     public void save(String fileName, Hashtable<Integer, Vehicle> collection) throws Exception {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8));
-             CSVWriter csvWriter = new CSVWriter(bw)) {
+             CSVWriter csvWriter = new CSVWriter(bw,
+                     CSVWriter.DEFAULT_SEPARATOR,
+                     CSVWriter.NO_QUOTE_CHARACTER,
+                     CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                     CSVWriter.DEFAULT_LINE_END)) {
 
             for (Vehicle vehicle : collection.values()) {
                 String[] record = new String[6];
