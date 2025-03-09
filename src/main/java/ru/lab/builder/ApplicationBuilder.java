@@ -70,6 +70,10 @@ public class ApplicationBuilder {
         invoker.register("update", new Update(collectionManager, scanner));
         invoker.register("remove_key", new RemoveKey(collectionManager));
         invoker.register("remove_greater", new RemoveGreater(collectionManager, scanner));
+        invoker.register("remove_lower_key", new RemoveLowerKey(collectionManager));
+        invoker.register("remove_all_by_type", new RemoveAllByType(collectionManager, scanner));
+        invoker.register("print_field_ascending_fuel_type", new PrintFieldAscendingFuelType(collectionManager));
+        invoker.register("group_counting_by_engine_power", new GroupCountingByEnginePower(collectionManager));
 
     }
 
