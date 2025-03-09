@@ -1,0 +1,15 @@
+help
+info
+show
+insert 3
+Ferrari
+25
+25
+650
+SPACESHIP
+KEROSENE
+print_field_ascending_fuel_type
+group_counting_by_engine_power
+history
+save
+exit

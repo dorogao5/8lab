@@ -4,12 +4,12 @@ import ru.lab.functions.Command;
 import ru.lab.util.CollectionManager;
 import ru.lab.model.Vehicle;
 import ru.lab.model.VehicleType;
+import ru.lab.builder.Console;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Команда remove_all_by_type type - удалить из коллекции все элементы, значение поля type которых эквивалентно заданному,
@@ -17,22 +17,22 @@ import java.util.Scanner;
  */
 public class RemoveAllByType implements Command {
     private final CollectionManager collectionManager;
-    private final Scanner scanner;
+    private final Console console; // Используем Console для поддержки скриптов
 
     /**
      * Конструктор команды RemoveAllByType.
      *
      * @param collectionManager менеджер коллекции транспортных средств.
-     * @param scanner источник ввода для запроса типа.
+     * @param console           объект Console для считывания данных.
      */
-    public RemoveAllByType(CollectionManager collectionManager, Scanner scanner) {
+    public RemoveAllByType(CollectionManager collectionManager, Console console) {
         this.collectionManager = collectionManager;
-        this.scanner = scanner;
+        this.console = console;
     }
 
     /**
      * Выполняет команду, удаляя все элементы с типом, эквивалентным заданному.
-     * Формат: remove_all_by_type &lt;тип&gt;
+     * Формат: remove_all_by_type (тип)
      *
      * @param args аргументы команды.
      */
@@ -40,17 +40,16 @@ public class RemoveAllByType implements Command {
     public void execute(String[] args) {
         String inputType;
         if (args.length < 1) {
-            System.out.print("Введите тип транспортного средства для удаления (BOAT, CHOPPER, HOVERBOARD, SPACESHIP): ");
-            inputType = scanner.nextLine().trim();
+            inputType = console.readLine("Введите тип транспортного средства для удаления (BOAT, CHOPPER, HOVERBOARD, SPACESHIP): ").trim();
         } else {
-            inputType = args[0];
+            inputType = args[0].trim();
         }
 
         VehicleType targetType;
         try {
             targetType = VehicleType.valueOf(inputType.toUpperCase());
         } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: некорректное значение типа. Доступные типы: ");
+            System.out.println("Ошибка: некорректное значение типа. Доступные типы:");
             for (VehicleType vt : VehicleType.values()) {
                 System.out.print(vt.name() + " ");
             }
@@ -88,11 +87,6 @@ public class RemoveAllByType implements Command {
         System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с типом " + targetType.name() + ".");
     }
 
-    /**
-     * Возвращает краткое описание команды RemoveAllByType.
-     *
-     * @return описание команды.
-     */
     @Override
     public String getDescription() {
         return "remove_all_by_type type - удалить из коллекции все элементы, значение поля type которых эквивалентно заданному";

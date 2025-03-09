@@ -6,33 +6,27 @@ import ru.lab.model.Vehicle;
 import ru.lab.model.Coordinates;
 import ru.lab.model.VehicleType;
 import ru.lab.model.FuelType;
-
-import java.util.Scanner;
+import ru.lab.builder.Console;
 
 /**
  * Команда для обновления значения элемента коллекции по заданному ключу.
- * Формат: update &lt;ключ&gt; - затем осуществляется запрос данных для нового элемента.
+ * Формат: update ключ - затем последовательно считываются данные нового элемента.
  */
 public class Update implements Command {
     private final CollectionManager collectionManager;
-    private final Scanner scanner;
+    private final Console console; // Используем Console для чтения строк
 
     /**
      * Конструктор команды Update.
      *
      * @param collectionManager менеджер коллекции транспортных средств.
-     * @param scanner источник ввода для запроса данных.
+     * @param console           объект Console для считывания данных.
      */
-    public Update(CollectionManager collectionManager, Scanner scanner) {
+    public Update(CollectionManager collectionManager, Console console) {
         this.collectionManager = collectionManager;
-        this.scanner = scanner;
+        this.console = console;
     }
 
-    /**
-     * Выполняет команду Update, обновляя элемент коллекции с заданным ключом.
-     *
-     * @param args аргументы команды; первый аргумент должен содержать ключ элемента.
-     */
     @Override
     public void execute(String[] args) {
         if (args.length < 1) {
@@ -55,17 +49,15 @@ public class Update implements Command {
             return;
         }
 
-        // Запрос данных для нового элемента (id и creationDate генерируются автоматически)
+        // Считываем данные для нового элемента через console.readLine(prompt)
         String name = promptString("Введите имя транспортного средства (не пустая строка): ", true);
-        long x = promptLong("Введите координату X (максимум 225): ", 0, 225);
-        int y = promptInt("Введите координату Y (целое число, максимум 493): ", 0, 493);
-        float enginePower = promptFloat("Введите мощность двигателя (больше 0): ", 0, Float.MAX_VALUE);
-        VehicleType type = promptEnum("Введите тип транспортного средства (BOAT, CHOPPER, HOVERBOARD, SPACESHIP) или пустую строку для null: ", VehicleType.class);
-        FuelType fuelType = promptEnum("Введите тип топлива (GASOLINE, KEROSENE, NUCLEAR, PLASMA) или пустую строку для null: ", FuelType.class);
+        long x = promptLong("Введите координату X (0..225): ", 0, 225);
+        int y = promptInt("Введите координату Y (0..493): ", 0, 493);
+        float enginePower = promptFloat("Введите мощность двигателя (> 0): ", 0, Float.MAX_VALUE);
+        VehicleType vtype = promptEnum("Введите тип транспортного средства (BOAT, CHOPPER, HOVERBOARD, SPACESHIP) или пустую строку для null: ", VehicleType.class);
+        FuelType ftype = promptEnum("Введите тип топлива (GASOLINE, KEROSENE, NUCLEAR, PLASMA) или пустую строку для null: ", FuelType.class);
 
-        // Создаем новый объект Vehicle с введенными данными
-        Vehicle newVehicle = new Vehicle(0, name, new Coordinates(x, y), enginePower, type, fuelType);
-        // Присваиваем обновляемому элементу ключ updateKey
+        Vehicle newVehicle = new Vehicle(0, name, new Coordinates(x, y), enginePower, vtype, ftype);
         newVehicle.setId(updateKey);
         collectionManager.getCollection().put(updateKey, newVehicle);
         System.out.println("Элемент с ключом " + updateKey + " успешно обновлен.");
@@ -74,9 +66,8 @@ public class Update implements Command {
     private String promptString(String prompt, boolean nonEmpty) {
         String input;
         while (true) {
-            System.out.print(prompt);
-            input = scanner.nextLine().trim();
-            if (nonEmpty && input.isEmpty()) {
+            input = console.readLine(prompt);
+            if (nonEmpty && (input == null || input.trim().isEmpty())) {
                 System.out.println("Ошибка: строка не может быть пустой.");
             } else {
                 break;
@@ -87,8 +78,7 @@ public class Update implements Command {
 
     private long promptLong(String prompt, long min, long max) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = console.readLine(prompt);
             try {
                 long value = Long.parseLong(input);
                 if (value < min || value > max) {
@@ -104,8 +94,7 @@ public class Update implements Command {
 
     private int promptInt(String prompt, int min, int max) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = console.readLine(prompt);
             try {
                 int value = Integer.parseInt(input);
                 if (value < min || value > max) {
@@ -121,8 +110,7 @@ public class Update implements Command {
 
     private float promptFloat(String prompt, float min, float max) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = console.readLine(prompt);
             try {
                 float value = Float.parseFloat(input);
                 if (value <= min || value > max) {
@@ -138,13 +126,12 @@ public class Update implements Command {
 
     private <E extends Enum<E>> E promptEnum(String prompt, Class<E> enumClass) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {
+            String input = console.readLine(prompt);
+            if (input == null || input.trim().isEmpty()) {
                 return null;
             }
             try {
-                return Enum.valueOf(enumClass, input.toUpperCase());
+                return Enum.valueOf(enumClass, input.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
                 System.out.print("Доступные значения: ");
                 for (E constant : enumClass.getEnumConstants()) {
@@ -156,13 +143,8 @@ public class Update implements Command {
         }
     }
 
-    /**
-     * Возвращает краткое описание команды Update.
-     *
-     * @return описание команды.
-     */
     @Override
     public String getDescription() {
-        return "update {element} - обновить значение элемента коллекции, id которого равен заданному";
+        return "update <key> - обновить значение элемента коллекции, id которого равен заданному";
     }
 }

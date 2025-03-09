@@ -6,38 +6,36 @@ import ru.lab.model.Vehicle;
 import ru.lab.model.Coordinates;
 import ru.lab.model.VehicleType;
 import ru.lab.model.FuelType;
+import ru.lab.builder.Console;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Команда remove_greater {element} - удалить из коллекции все элементы,
- * значение поля enginePower которых больше, чем у введённого элемента.
- * &lt;p&gt;
- * Формат: имя_команды ключ отсутствует, далее осуществляется запрос на ввод данных
- * для нового элемента.
- * При некорректном вводе повторяются запросы.
+ * у которых значение поля enginePower больше, чем у введённого элемента.
+ * <p>
+ * Формат: команда без аргументов, затем последовательно запрашиваются данные для элемента-порога.
  */
 public class RemoveGreater implements Command {
     private final CollectionManager collectionManager;
-    private final Scanner scanner;
+    private final Console console; // Используем Console для поддержки скриптов
 
     /**
      * Конструктор команды RemoveGreater.
      *
      * @param collectionManager менеджер коллекции транспортных средств.
-     * @param scanner источник ввода для запроса данных.
+     * @param console           объект Console для считывания данных.
      */
-    public RemoveGreater(CollectionManager collectionManager, Scanner scanner) {
+    public RemoveGreater(CollectionManager collectionManager, Console console) {
         this.collectionManager = collectionManager;
-        this.scanner = scanner;
+        this.console = console;
     }
 
     /**
-     * Выполняет команду remove_greater, удаляя из коллекции все элементы,
-     * у которых значение enginePower больше, чем у нового элемента.
+     * Выполняет команду, удаляя из коллекции все элементы,
+     * у которых значение enginePower больше, чем у нового введённого элемента.
      *
      * @param args аргументы команды (не используются).
      */
@@ -45,13 +43,13 @@ public class RemoveGreater implements Command {
     public void execute(String[] args) {
         System.out.println("Введите данные для элемента-порог (элементы с большим enginePower будут удалены):");
         String name = promptString("Введите имя транспортного средства (не пустая строка): ", true);
-        long x = promptLong("Введите координату X (максимум 225): ", 0, 225);
+        long x = promptLong("Введите координату X (0..225): ", 0, 225);
         int y = promptInt("Введите координату Y (целое число, максимум 493): ", 0, 493);
         float enginePowerThreshold = promptFloat("Введите мощность двигателя (больше 0): ", 0, Float.MAX_VALUE);
         VehicleType type = promptEnum("Введите тип транспортного средства (BOAT, CHOPPER, HOVERBOARD, SPACESHIP) или пустую строку для null: ", VehicleType.class);
         FuelType fuelType = promptEnum("Введите тип топлива (GASOLINE, KEROSENE, NUCLEAR, PLASMA) или пустую строку для null: ", FuelType.class);
 
-        // Создаем временный объект, из которого берется пороговое значение
+        // Создаем временный объект для порогового сравнения
         Vehicle thresholdVehicle = new Vehicle(0, name, new Coordinates(x, y), enginePowerThreshold, type, fuelType);
 
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
@@ -68,12 +66,13 @@ public class RemoveGreater implements Command {
         System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с enginePower больше " + enginePowerThreshold + ".");
     }
 
+    // Вспомогательные методы, использующие console.readLine(prompt)
+
     private String promptString(String prompt, boolean nonEmpty) {
         String input;
         while (true) {
-            System.out.print(prompt);
-            input = scanner.nextLine().trim();
-            if (nonEmpty && input.isEmpty()) {
+            input = console.readLine(prompt);
+            if (nonEmpty && (input == null || input.trim().isEmpty())) {
                 System.out.println("Ошибка: строка не может быть пустой.");
             } else {
                 break;
@@ -84,8 +83,7 @@ public class RemoveGreater implements Command {
 
     private long promptLong(String prompt, long min, long max) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = console.readLine(prompt);
             try {
                 long value = Long.parseLong(input);
                 if (value < min || value > max) {
@@ -101,8 +99,7 @@ public class RemoveGreater implements Command {
 
     private int promptInt(String prompt, int min, int max) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = console.readLine(prompt);
             try {
                 int value = Integer.parseInt(input);
                 if (value < min || value > max) {
@@ -118,8 +115,7 @@ public class RemoveGreater implements Command {
 
     private float promptFloat(String prompt, float min, float max) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = console.readLine(prompt);
             try {
                 float value = Float.parseFloat(input);
                 if (value <= min || value > max) {
@@ -135,13 +131,12 @@ public class RemoveGreater implements Command {
 
     private <E extends Enum<E>> E promptEnum(String prompt, Class<E> enumClass) {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {
+            String input = console.readLine(prompt);
+            if (input == null || input.trim().isEmpty()) {
                 return null;
             }
             try {
-                return Enum.valueOf(enumClass, input.toUpperCase());
+                return Enum.valueOf(enumClass, input.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
                 System.out.print("Доступные значения: ");
                 for (E constant : enumClass.getEnumConstants()) {
@@ -153,11 +148,6 @@ public class RemoveGreater implements Command {
         }
     }
 
-    /**
-     * Возвращает краткое описание команды RemoveGreater.
-     *
-     * @return описание команды.
-     */
     @Override
     public String getDescription() {
         return "remove_greater {element} - удалить из коллекции все элементы, enginePower которых больше заданного";
