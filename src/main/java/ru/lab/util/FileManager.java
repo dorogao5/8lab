@@ -12,61 +12,52 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.Hashtable;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 /**
- * Класс для загрузки и сохранения коллекции транспортных средств в CSV формате.
- * Чтение файла осуществляется через BufferedInputStream.
+ * Класс для загрузки и сохранения коллекции транспортных средств в формате CSV.
+ * &amp;lt;p&amp;gt;
+ * Формат CSV: name, coordinates.x, coordinates.y, enginePower, type, fuelType.
+ * Поля id и creationDate генерируются автоматически при создании объекта.
  */
 public class FileManager implements IFileManager {
 
     /**
-     * Загружает коллекцию из CSV файла.
-     * Формат CSV:
-     * id, name, coordinates.x, coordinates.y, creationDate (epochMillis),
-     * enginePower, type, fuelType
+     * Загружает коллекцию транспортных средств из CSV файла.
+     * При создании каждого объекта Vehicle, поля id и creationDate генерируются автоматически.
+     *
+     * @param fileName имя CSV файла.
+     * @return Hashtable, где ключ &ndash; временный ключ для объекта, значение &ndash; объект Vehicle.
+     * @throws Exception если возникает ошибка при загрузке файла.
      */
     @Override
     public Hashtable<Integer, Vehicle> load(String fileName) throws Exception {
         Hashtable<Integer, Vehicle> collection = new Hashtable<>();
+        int counter = 0; // Локальный счётчик для формирования уникальных ключей
         try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fileName));
              InputStreamReader isr = new InputStreamReader(bis, StandardCharsets.UTF_8);
              CSVReader csvReader = new CSVReader(isr)) {
 
             String[] nextLine;
             while ((nextLine = csvReader.readNext()) != null) {
-                if (nextLine.length < 8) {
-                    continue; // пропускаем некорректные строки
+                if (nextLine.length < 6) {
+                    continue; // Пропускаем строки с недостаточным количеством полей
                 }
                 try {
-                    int id = Integer.parseInt(nextLine[0]);
-                    String name = nextLine[1];
-                    long coordX = Long.parseLong(nextLine[2]);
-                    int coordY = Integer.parseInt(nextLine[3]);
-                    long creationMillis = Long.parseLong(nextLine[4]);
-                    Date creationDate = new Date(creationMillis);
-                    float enginePower = Float.parseFloat(nextLine[5]);
-                    VehicleType type = nextLine[6].isEmpty() ? null : VehicleType.valueOf(nextLine[6]);
-                    FuelType fuelType = nextLine[7].isEmpty() ? null : FuelType.valueOf(nextLine[7]);
+                    String name = nextLine[0];
+                    long coordX = Long.parseLong(nextLine[1]);
+                    int coordY = Integer.parseInt(nextLine[2]);
+                    float enginePower = Float.parseFloat(nextLine[3]);
+                    VehicleType type = nextLine[4].isEmpty() ? null : VehicleType.valueOf(nextLine[4]);
+                    FuelType fuelType = nextLine[5].isEmpty() ? null : FuelType.valueOf(nextLine[5]);
 
                     Coordinates coordinates = new Coordinates(coordX, coordY);
-                    // Создаем Vehicle; creationDate генерируется автоматически в конструкторе,
-                    // поэтому для восстановления исходной даты можно использовать рефлексию,
-                    // либо добавить перегруженный конструктор.
-                    // Здесь для простоты создадим Vehicle и затем переопределим creationDate через рефлексию.
-                    Vehicle vehicle = new Vehicle(id, name, coordinates, enginePower, type, fuelType);
-
-                    // Устанавливаем восстановленную дату создания (если необходимо, через рефлексию)
-                    // Пример (без обработки исключений):
-                    java.lang.reflect.Field field = Vehicle.class.getDeclaredField("creationDate");
-                    field.setAccessible(true);
-                    field.set(vehicle, creationDate);
-
-                    collection.put(id, vehicle);
+                    // Создаем Vehicle с временным id = 0, creationDate генерируется автоматически
+                    Vehicle vehicle = new Vehicle(0, name, coordinates, enginePower, type, fuelType);
+                    collection.put(++counter, vehicle);
                 } catch (Exception e) {
                     System.err.println("Ошибка обработки строки: " + String.join(",", nextLine));
                     e.printStackTrace();
@@ -79,7 +70,12 @@ public class FileManager implements IFileManager {
     }
 
     /**
-     * Сохраняет коллекцию в CSV файл.
+     * Сохраняет коллекцию транспортных средств в CSV файл.
+     * При сохранении записываются только поля: name, coordinates.x, coordinates.y, enginePower, type, fuelType.
+     *
+     * @param fileName   имя CSV файла для сохранения.
+     * @param collection коллекция транспортных средств.
+     * @throws Exception если возникает ошибка при сохранении файла.
      */
     @Override
     public void save(String fileName, Hashtable<Integer, Vehicle> collection) throws Exception {
@@ -87,15 +83,13 @@ public class FileManager implements IFileManager {
              CSVWriter csvWriter = new CSVWriter(bw)) {
 
             for (Vehicle vehicle : collection.values()) {
-                String[] record = new String[8];
-                record[0] = String.valueOf(vehicle.getId());
-                record[1] = vehicle.getName();
-                record[2] = String.valueOf(vehicle.getCoordinates().getX());
-                record[3] = String.valueOf(vehicle.getCoordinates().getY());
-                record[4] = String.valueOf(vehicle.getCreationDate().getTime());
-                record[5] = String.valueOf(vehicle.getEnginePower());
-                record[6] = (vehicle.getType() == null) ? "" : vehicle.getType().name();
-                record[7] = (vehicle.getFuelType() == null) ? "" : vehicle.getFuelType().name();
+                String[] record = new String[6];
+                record[0] = vehicle.getName();
+                record[1] = String.valueOf(vehicle.getCoordinates().getX());
+                record[2] = String.valueOf(vehicle.getCoordinates().getY());
+                record[3] = String.valueOf(vehicle.getEnginePower());
+                record[4] = (vehicle.getType() == null) ? "" : vehicle.getType().name();
+                record[5] = (vehicle.getFuelType() == null) ? "" : vehicle.getFuelType().name();
                 csvWriter.writeNext(record);
             }
             csvWriter.flush();

@@ -3,29 +3,32 @@ package ru.lab.model;
 import java.util.Date;
 
 /**
- * Класс, описывающий транспортное средство (Vehicle).
- * Объект класса является изменяемым, что позволяет обновлять его поля в процессе работы программы.
+ * Класс, описывающий транспортное средство.
+ * <p>
+ * Объект изменяемый, за исключением поля creationDate, которое генерируется автоматически.
+ * Поля id и creationDate генерируются автоматически при создании объекта.
  */
 public class Vehicle {
     private int id;                   // > 0, уникальный (назначается извне)
-    private String name;              // не null, не пустая
+    private String name;              // не null, не пустая строка
     private Coordinates coordinates;  // не null
-    private final Date creationDate;        // генерируется автоматически, не изменяется после создания
+    private final Date creationDate;  // генерируется автоматически, не изменяется
     private float enginePower;        // > 0
     private VehicleType type;         // может быть null
     private FuelType fuelType;        // может быть null
 
     /**
      * Конструктор, устанавливающий начальные значения.
-     * Поле creationDate генерируется автоматически.
+     * Если переданный id &lt;= 0, считается, что id не задан и будет сгенерирован позже.
+     * creationDate генерируется автоматически.
      *
-     * @param id           Уникальный идентификатор (> 0), назначается извне.
-     * @param name         Название транспортного средства (не null, не пустое).
-     * @param coordinates  Координаты (не null).
-     * @param enginePower  Мощность двигателя (должна быть > 0).
-     * @param type         Тип транспортного средства (может быть null).
-     * @param fuelType     Тип топлива (может быть null).
-     * @throws IllegalArgumentException если переданы некорректные данные.
+     * @param id          уникальный идентификатор (> 0), если &lt;= 0, то считается не заданным.
+     * @param name        название транспортного средства (не null, не пустое).
+     * @param coordinates координаты транспортного средства (не null).
+     * @param enginePower мощность двигателя (должна быть > 0).
+     * @param type        тип транспортного средства (может быть null).
+     * @param fuelType    тип топлива (может быть null).
+     * @throws IllegalArgumentException если нарушены ограничения на name или enginePower.
      */
     public Vehicle(int id, String name, Coordinates coordinates, float enginePower,
                    VehicleType type, FuelType fuelType) {
@@ -33,16 +36,15 @@ public class Vehicle {
         setName(name);
         setCoordinates(coordinates);
         setEnginePower(enginePower);
-        // creationDate устанавливается автоматически и не изменяется
         this.creationDate = new Date();
         this.type = type;
         this.fuelType = fuelType;
     }
 
-    // Геттеры и сеттеры
-
     /**
      * Возвращает уникальный идентификатор.
+     *
+     * @return id транспортного средства.
      */
     public int getId() {
         return id;
@@ -50,20 +52,22 @@ public class Vehicle {
 
     /**
      * Устанавливает уникальный идентификатор.
-     * Поскольку id генерируется извне, изменять его после создания не предполагается.
+     * Если переданное значение &lt;= 0, id считается не заданным (будет сгенерирован автоматически).
      *
      * @param id уникальный идентификатор (> 0).
-     * @throws IllegalArgumentException если id &lt;= 0.
      */
     public void setId(int id) {
         if (id <= 0) {
-            throw new IllegalArgumentException("Поле id должно быть > 0, получено: " + id);
+            this.id = 0;
+        } else {
+            this.id = id;
         }
-        this.id = id;
     }
 
     /**
      * Возвращает название транспортного средства.
+     *
+     * @return название транспортного средства.
      */
     public String getName() {
         return name;
@@ -72,7 +76,7 @@ public class Vehicle {
     /**
      * Устанавливает название транспортного средства.
      *
-     * @param name не может быть null или пустым.
+     * @param name название (не null, не пустая строка).
      * @throws IllegalArgumentException если name равен null или пустой строке.
      */
     public void setName(String name) {
@@ -83,16 +87,18 @@ public class Vehicle {
     }
 
     /**
-     * Возвращает координаты.
+     * Возвращает координаты транспортного средства.
+     *
+     * @return объект Coordinates.
      */
     public Coordinates getCoordinates() {
         return coordinates;
     }
 
     /**
-     * Устанавливает координаты.
+     * Устанавливает координаты транспортного средства.
      *
-     * @param coordinates не может быть null.
+     * @param coordinates координаты (не null).
      * @throws IllegalArgumentException если coordinates равен null.
      */
     public void setCoordinates(Coordinates coordinates) {
@@ -103,7 +109,9 @@ public class Vehicle {
     }
 
     /**
-     * Возвращает дату создания.
+     * Возвращает дату создания транспортного средства.
+     *
+     * @return объект Date, представляющий дату создания.
      */
     public Date getCreationDate() {
         return creationDate;
@@ -111,6 +119,8 @@ public class Vehicle {
 
     /**
      * Возвращает мощность двигателя.
+     *
+     * @return мощность двигателя.
      */
     public float getEnginePower() {
         return enginePower;
@@ -119,7 +129,7 @@ public class Vehicle {
     /**
      * Устанавливает мощность двигателя.
      *
-     * @param enginePower значение должно быть > 0.
+     * @param enginePower значение мощности (должно быть > 0).
      * @throws IllegalArgumentException если enginePower &lt;= 0.
      */
     public void setEnginePower(float enginePower) {
@@ -131,6 +141,8 @@ public class Vehicle {
 
     /**
      * Возвращает тип транспортного средства.
+     *
+     * @return тип транспортного средства (VehicleType) или null.
      */
     public VehicleType getType() {
         return type;
@@ -139,7 +151,7 @@ public class Vehicle {
     /**
      * Устанавливает тип транспортного средства.
      *
-     * @param type может быть null.
+     * @param type тип транспортного средства (может быть null).
      */
     public void setType(VehicleType type) {
         this.type = type;
@@ -147,6 +159,8 @@ public class Vehicle {
 
     /**
      * Возвращает тип топлива.
+     *
+     * @return тип топлива (FuelType) или null.
      */
     public FuelType getFuelType() {
         return fuelType;
@@ -155,12 +169,17 @@ public class Vehicle {
     /**
      * Устанавливает тип топлива.
      *
-     * @param fuelType может быть null.
+     * @param fuelType тип топлива (может быть null).
      */
     public void setFuelType(FuelType fuelType) {
         this.fuelType = fuelType;
     }
 
+    /**
+     * Возвращает строковое представление транспортного средства.
+     *
+     * @return строка с описанием транспортного средства.
+     */
     @Override
     public String toString() {
         return "Vehicle{" +

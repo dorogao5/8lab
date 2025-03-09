@@ -6,12 +6,15 @@ package ru.lab.functions;
 public interface Command {
     /**
      * Выполняет основное действие команды.
+     *
+     * @param args аргументы команды.
      */
     void execute(String[] args);
 
     /**
-     * @return краткое описание команды (для help).
+     * Возвращает краткое описание команды (для справки).
+     *
+     * @return описание команды.
      */
     String getDescription();
 }
-

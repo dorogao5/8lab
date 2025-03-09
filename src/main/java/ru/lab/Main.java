@@ -1,42 +1,25 @@
 package ru.lab;
 
-import ru.lab.model.Vehicle;
-import ru.lab.util.*;
-
-
-import java.util.Hashtable;
+import ru.lab.builder.ApplicationBuilder;
+import ru.lab.builder.Console;
 
 /**
- * Точка входа в приложение.
- * Имя CSV файла передается через аргумент командной строки.
+ * Главный класс для запуска приложения.
  */
 public class Main {
+    /**
+     * Точка входа в приложение.
+     *
+     * @param args аргументы командной строки, первый из которых должен содержать имя CSV файла.
+     */
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Необходимо указать имя CSV файла в качестве аргумента командной строки.");
-            return;
-        }
-
-        String fileName = args[0];
-        IFileManager fileManager = new FileManager();
-        Hashtable<Integer, Vehicle> collection;
-
         try {
-            collection = fileManager.load(fileName);
-            System.out.println("Коллекция успешно загружена из файла: " + fileName);
+            ApplicationBuilder builder = new ApplicationBuilder(args);
+            Console console = builder.createConsole();
+            console.start();
         } catch (Exception e) {
-            System.err.println("Ошибка при загрузке коллекции: " + e.getMessage());
+            System.err.println("Ошибка запуска приложения: " + e.getMessage());
             e.printStackTrace();
-            // Если загрузка не удалась, начинаем с пустой коллекции
-            collection = new Hashtable<>();
         }
-
-        // Создаем менеджер коллекции
-        CollectionManager collectionManager = new CollectionManager(collection);
-
-        // Демонстрация: выводим количество элементов в коллекции
-        System.out.println("Количество элементов в коллекции: " + collectionManager.getCollection().size());
-
-        // Далее можно запустить интерактивный режим (например, через Invoker) и работать с коллекцией
     }
 }
