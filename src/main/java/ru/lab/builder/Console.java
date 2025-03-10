@@ -2,6 +2,7 @@ package ru.lab.builder;
 
 import ru.lab.functions.Command;
 import ru.lab.functions.Invoker;
+import ru.lab.util.CommandInterruptedException;
 
 import java.util.Map;
 import java.util.Scanner;
@@ -15,14 +16,6 @@ public class Console {
     private final Map<String, Command> commands;
     private final ScriptManager scriptManager;
 
-    /**
-     * Конструктор, принимающий основной Scanner (консоль),
-     * Invoker (реестр команд) и ScriptManager (очередь строк для скриптов).
-     *
-     * @param userScanner   источник ввода.
-     * @param invoker       объект Invoker, содержащий зарегистрированные команды.
-     * @param scriptManager менеджер строк скрипта.
-     */
     public Console(Scanner userScanner, Invoker invoker, ScriptManager scriptManager) {
         this.userScanner = userScanner;
         this.invoker = invoker;
@@ -36,7 +29,14 @@ public class Console {
     public void start() {
         System.out.println("Добро пожаловать в приложение! Введите команду:");
         while (true) {
-            String line = readLine();
+            String line;
+            try {
+                line = readLine();
+            } catch (CommandInterruptedException e) {
+                // Если команда прервана на уровне главного меню, можно просто пропустить
+                System.out.println("Прерывание ввода. Вернитесь в меню.");
+                continue;
+            }
             if (line == null) {
                 System.out.println("Ввод завершён.");
                 break;
@@ -55,6 +55,8 @@ public class Console {
             System.arraycopy(tokens, 1, args, 0, args.length);
             try {
                 command.execute(args);
+            } catch (CommandInterruptedException e) {
+                System.out.println("Команда прервана: " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("Ошибка при выполнении команды '" + line + "': " + e.getMessage());
                 e.printStackTrace();
@@ -80,12 +82,19 @@ public class Console {
 
     /**
      * То же, что и readLine(), но сначала выводит подсказку.
+     * <p>
+     * Если пользователь вводит "\stop_running_command", выбрасывается исключение,
+     * которое прерывает выполнение текущей команды.
      *
      * @param prompt сообщение-подсказка.
      * @return введённая строка.
      */
     public String readLine(String prompt) {
         System.out.print(prompt);
-        return readLine();
+        String line = readLine();
+        if (line != null && line.trim().equalsIgnoreCase("\\stop_running_command")) {
+            throw new CommandInterruptedException("Пользователь прервал выполнение команды.");
+        }
+        return line;
     }
 }

@@ -145,6 +145,6 @@ public class Update implements Command {
 
     @Override
     public String getDescription() {
-        return "update <key> - обновить значение элемента коллекции, id которого равен заданному";
+        return "update <key> - обновить значение элемента коллекции, id которого равен заданному. \n(используйте \\stop_running_command если хотите прервать выполнение команды)";
     }
 }

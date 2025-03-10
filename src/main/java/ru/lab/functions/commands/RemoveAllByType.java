@@ -89,6 +89,6 @@ public class RemoveAllByType implements Command {
 
     @Override
     public String getDescription() {
-        return "remove_all_by_type type - удалить из коллекции все элементы, значение поля type которых эквивалентно заданному";
+        return "remove_all_by_type type - удалить из коллекции все элементы, значение поля type которых эквивалентно заданному. \n(используйте \\stop_running_command если хотите прервать выполнение команды)";
     }
 }

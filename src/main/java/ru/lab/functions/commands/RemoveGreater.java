@@ -150,6 +150,6 @@ public class RemoveGreater implements Command {
 
     @Override
     public String getDescription() {
-        return "remove_greater {element} - удалить из коллекции все элементы, enginePower которых больше заданного";
+        return "remove_greater {element} - удалить из коллекции все элементы, enginePower которых больше заданного. \n(используйте \\stop_running_command если хотите прервать выполнение команды)";
     }
 }

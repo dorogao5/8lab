@@ -165,6 +165,6 @@ public class Insert implements Command {
 
     @Override
     public String getDescription() {
-        return "insert <key> - добавить новый элемент с заданным ключом, сдвигая элементы с ключами >= заданного";
+        return "insert <key> - добавить новый элемент с заданным ключом, сдвигая элементы с ключами >= заданного. \n(используйте \\stop_running_command если хотите прервать выполнение команды)";
     }
 }
