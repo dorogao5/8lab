@@ -15,7 +15,13 @@ public class Console {
     private final Invoker invoker;
     private final Map<String, Command> commands;
     private final ScriptManager scriptManager;
-
+    /**
+     * Конструктор класса Console.
+     *
+     * @param userScanner сканер для чтения пользовательского ввода.
+     * @param invoker объект Invoker для обработки команд.
+     * @param scriptManager менеджер для поддержки выполнения скриптов.
+     */
     public Console(Scanner userScanner, Invoker invoker, ScriptManager scriptManager) {
         this.userScanner = userScanner;
         this.invoker = invoker;

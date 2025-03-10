@@ -1,7 +1,8 @@
 package ru.lab.util;
 
 /**
- * Исключение, выбрасываемое при прерывании выполнения команды пользователем.
+ * Создает исключение CommandInterruptedException с указанным сообщением.
+ *
  */
 public class CommandInterruptedException extends RuntimeException {
     public CommandInterruptedException(String message) {
