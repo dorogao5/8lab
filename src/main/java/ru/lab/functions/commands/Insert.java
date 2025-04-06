@@ -40,10 +40,16 @@ public class Insert implements Command {
             return;
         }
         int insertKey;
+        Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         try {
             insertKey = Integer.parseInt(args[0]);
             if (insertKey <= 0) {
                 System.out.println("Ошибка: ключ должен быть положительным числом.");
+                return;
+            }
+            int maxKey = collection.isEmpty() ? 0 : Collections.max(collection.keySet());
+            if (insertKey > maxKey + 1) {
+                System.out.println("Ошибка: Невозможно вставить элемент с ключом " + insertKey + ". Максимальный допустимый ключ: " + (maxKey + 1));
                 return;
             }
         } catch (NumberFormatException e) {
@@ -63,7 +69,6 @@ public class Insert implements Command {
         Vehicle newVehicle = new Vehicle(0, name, new Coordinates(x, y), enginePower, vtype, ftype);
         newVehicle.setId(insertKey);
 
-        Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         // Сдвигаем элементы с ключами >= insertKey
         List<Integer> keysToShift = new ArrayList<>();
         for (Integer key : collection.keySet()) {

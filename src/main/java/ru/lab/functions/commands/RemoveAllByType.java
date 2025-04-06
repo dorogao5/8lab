@@ -38,31 +38,40 @@ public class RemoveAllByType implements Command {
      */
     @Override
     public void execute(String[] args) {
+
         String inputType;
         if (args.length < 1) {
-            inputType = console.readLine("Введите тип транспортного средства для удаления (BOAT, CHOPPER, HOVERBOARD, SPACESHIP): ").trim();
+            inputType = console.readLine("Введите тип транспортного средства для удаления (BOAT, CHOPPER, HOVERBOARD, SPACESHIP) или пустую строку для null: ");
         } else {
             inputType = args[0].trim();
         }
 
-        VehicleType targetType;
-        try {
-            targetType = VehicleType.valueOf(inputType.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: некорректное значение типа. Доступные типы:");
-            for (VehicleType vt : VehicleType.values()) {
-                System.out.print(vt.name() + " ");
+        VehicleType targetType = null;
+        if (!inputType.isEmpty()) {
+            try {
+                targetType = VehicleType.valueOf(inputType.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Ошибка: некорректное значение типа. Доступные типы:");
+                for (VehicleType vt : VehicleType.values()) {
+                    System.out.print(vt.name() + " ");
+                }
+                System.out.println("\nИли введите пустую строку для удаления элементов с type == null.");
+                return;
             }
-            System.out.println();
-            return;
         }
 
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         List<Integer> keysToRemove = new ArrayList<>();
         for (Integer key : collection.keySet()) {
             Vehicle v = collection.get(key);
-            if (targetType.equals(v.getType())) {
-                keysToRemove.add(key);
+            if (targetType == null) {
+                if (v.getType() == null) {
+                    keysToRemove.add(key);
+                }
+            } else {
+                if (targetType.equals(v.getType())) {
+                    keysToRemove.add(key);
+                }
             }
         }
 
@@ -84,7 +93,8 @@ public class RemoveAllByType implements Command {
         collection.clear();
         collection.putAll(newCollection);
 
-        System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с типом " + targetType.name() + ".");
+        String typeName = (targetType == null) ? "null" : targetType.name();
+        System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с типом " + typeName + ".");
     }
 
     @Override
