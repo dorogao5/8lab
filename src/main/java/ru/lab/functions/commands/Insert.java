@@ -15,18 +15,18 @@ import java.util.List;
 
 /**
  * Команда для добавления нового элемента с заданным ключом.
- * Формат: insert ключ – затем последовательно считываются поля нового элемента.
+ * Формат: insert <key> - затем последовательно считываются поля нового элемента.
  * При добавлении все элементы с ключами >= заданному сдвигаются (их ключ увеличивается на 1).
  */
 public class Insert implements Command {
     private final CollectionManager collectionManager;
-    private final Console console; // Используем Console для чтения с поддержкой скрипта
+    private final Console console; // Используем интерактивный ввод
 
     /**
      * Конструктор команды Insert.
      *
      * @param collectionManager менеджер коллекции транспортных средств.
-     * @param console           объект Console, предоставляющий метод readLine(prompt).
+     * @param console           объект Console, предоставляющий метод readInteractiveLine.
      */
     public Insert(CollectionManager collectionManager, Console console) {
         this.collectionManager = collectionManager;
@@ -35,21 +35,24 @@ public class Insert implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Ошибка: необходимо указать ключ для вставки.");
-            return;
-        }
         int insertKey;
+        if (args.length < 1) {
+            insertKey  = Integer.parseInt(console.readInteractiveLine("Ошибка: необходимо указать ключ для вставки. Введите ключ: "));
+        }
+        else {
+            insertKey = Integer.parseInt(args[0]);
+        }
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         try {
-            insertKey = Integer.parseInt(args[0]);
+
             if (insertKey <= 0) {
                 System.out.println("Ошибка: ключ должен быть положительным числом.");
                 return;
             }
             int maxKey = collection.isEmpty() ? 0 : Collections.max(collection.keySet());
             if (insertKey > maxKey + 1) {
-                System.out.println("Ошибка: Невозможно вставить элемент с ключом " + insertKey + ". Максимальный допустимый ключ: " + (maxKey + 1));
+                System.out.println("Ошибка: Невозможно вставить элемент с ключом " + insertKey +
+                        ". Максимальный допустимый ключ: " + (maxKey + 1));
                 return;
             }
         } catch (NumberFormatException e) {
@@ -57,7 +60,7 @@ public class Insert implements Command {
             return;
         }
 
-        // Считываем данные для нового элемента через Console.readLine(prompt)
+        // Считываем данные для нового элемента через интерактивный ввод (игнорируя строки из скрипта)
         String name = promptString("Введите имя транспортного средства (не пустая строка): ", true);
         long x = promptLong("Введите координату X (0..225): ", 0, 225);
         int y = promptInt("Введите координату Y (0..493): ", 0, 493);
@@ -91,7 +94,7 @@ public class Insert implements Command {
     private String promptString(String prompt, boolean nonEmpty) {
         String input;
         while (true) {
-            input = console.readLine(prompt);
+            input = console.readInteractiveLine(prompt);
             if (nonEmpty && (input == null || input.trim().isEmpty())) {
                 System.out.println("Ошибка: строка не может быть пустой.");
             } else {
@@ -103,7 +106,7 @@ public class Insert implements Command {
 
     private long promptLong(String prompt, long min, long max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 long value = Long.parseLong(input);
                 if (value < min || value > max) {
@@ -119,7 +122,7 @@ public class Insert implements Command {
 
     private int promptInt(String prompt, int min, int max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 int value = Integer.parseInt(input);
                 if (value < min || value > max) {
@@ -135,7 +138,7 @@ public class Insert implements Command {
 
     private float promptFloat(String prompt, float min, float max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 float value = Float.parseFloat(input);
                 if (value <= min || value > max) {
@@ -151,7 +154,7 @@ public class Insert implements Command {
 
     private <E extends Enum<E>> E promptEnum(String prompt, Class<E> enumClass) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             if (input == null || input.trim().isEmpty()) {
                 return null;
             }

@@ -15,11 +15,12 @@ public class Console {
     private final Invoker invoker;
     private final Map<String, Command> commands;
     private final ScriptManager scriptManager;
+
     /**
      * Конструктор класса Console.
      *
-     * @param userScanner сканер для чтения пользовательского ввода.
-     * @param invoker объект Invoker для обработки команд.
+     * @param userScanner  сканер для чтения пользовательского ввода.
+     * @param invoker      объект Invoker для обработки команд.
      * @param scriptManager менеджер для поддержки выполнения скриптов.
      */
     public Console(Scanner userScanner, Invoker invoker, ScriptManager scriptManager) {
@@ -39,7 +40,6 @@ public class Console {
             try {
                 line = readLine();
             } catch (CommandInterruptedException e) {
-                // Если команда прервана на уровне главного меню, можно просто пропустить
                 System.out.println("Прерывание ввода. Вернитесь в меню.");
                 continue;
             }
@@ -87,10 +87,28 @@ public class Console {
     }
 
     /**
-     * То же, что и readLine(), но сначала выводит подсказку.
-     * <p>
-     * Если пользователь вводит "\stop_running_command", выбрасывается исключение,
-     * которое прерывает выполнение текущей команды.
+     * Читает строку с подсказкой, но всегда из интерактивного ввода пользователя,
+     * игнорируя строки из скрипта.
+     * Если пользователь вводит "\stop_running_command", выбрасывается исключение.
+     *
+     * @param prompt сообщение-подсказка.
+     * @return введённая строка.
+     */
+    public String readInteractiveLine(String prompt) {
+        System.out.print(prompt);
+        String line = null;
+        if (userScanner.hasNextLine()) {
+            line = userScanner.nextLine();
+        }
+        if (line != null && line.trim().equalsIgnoreCase("\\stop_running_command")) {
+            throw new CommandInterruptedException("Пользователь прервал выполнение команды.");
+        }
+        return line;
+    }
+
+    /**
+     * Читает строку с подсказкой. Сначала проверяет очередь скриптов,
+     * если она не пуста – возвращает строку из скрипта, иначе читает из консоли.
      *
      * @param prompt сообщение-подсказка.
      * @return введённая строка.

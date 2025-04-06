@@ -53,10 +53,10 @@ public class RemoveGreater implements Command {
         System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с enginePower больше " + enginePowerThreshold + ".");
     }
 
-    // Вспомогательные методы, использующие console.readLine(prompt)
+    // Вспомогательные методы, использующие console.readInteractiveLine(prompt)
     private float promptFloat(String prompt, float min, float max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 float value = Float.parseFloat(input);
                 if (value <= min || value > max) {

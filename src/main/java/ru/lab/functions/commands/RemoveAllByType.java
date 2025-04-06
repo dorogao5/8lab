@@ -41,13 +41,13 @@ public class RemoveAllByType implements Command {
 
         String inputType;
         if (args.length < 1) {
-            inputType = console.readLine("Введите тип транспортного средства для удаления (BOAT, CHOPPER, HOVERBOARD, SPACESHIP) или пустую строку для null: ");
+            inputType = console.readInteractiveLine("Введите тип транспортного средства для удаления (BOAT, CHOPPER, HOVERBOARD, SPACESHIP), для null нажмите Enter или введите NULL : ");
         } else {
             inputType = args[0].trim();
         }
 
         VehicleType targetType = null;
-        if (!inputType.isEmpty()) {
+        if (!inputType.isEmpty() & !inputType.equals("NULL")) {
             try {
                 targetType = VehicleType.valueOf(inputType.toUpperCase());
             } catch (IllegalArgumentException e) {

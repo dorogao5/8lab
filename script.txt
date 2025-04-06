@@ -1,15 +1,2 @@
-help
-info
-show
-insert 2
-McLaren
-33
-33
-600
-SPACESHIP
-KEROSENE
-print_field_ascending_fuel_type
-group_counting_by_engine_power
-history
-save
-exit
+remove_all_by_type
+

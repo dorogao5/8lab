@@ -10,11 +10,11 @@ import ru.lab.builder.Console;
 
 /**
  * Команда для обновления значения элемента коллекции по заданному ключу.
- * Формат: update ключ - затем последовательно считываются данные нового элемента.
+ * Формат: update <key> - затем последовательно считываются данные нового элемента.
  */
 public class Update implements Command {
     private final CollectionManager collectionManager;
-    private final Console console; // Используем Console для чтения строк
+    private final Console console; // Используем интерактивный ввод
 
     /**
      * Конструктор команды Update.
@@ -29,13 +29,15 @@ public class Update implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Ошибка: необходимо указать ключ для обновления.");
-            return;
-        }
         int updateKey;
-        try {
+        if (args.length < 1) {
+            updateKey = Integer.parseInt(console.readInteractiveLine("Ошибка: необходимо указать ключ для обновления. Введите ключ:"));
+        }
+        else {
             updateKey = Integer.parseInt(args[0]);
+        }
+        try {
+
             if (updateKey <= 0) {
                 System.out.println("Ошибка: ключ должен быть положительным числом.");
                 return;
@@ -49,7 +51,7 @@ public class Update implements Command {
             return;
         }
 
-        // Считываем данные для нового элемента через console.readLine(prompt)
+        // Считываем данные для нового элемента через интерактивный ввод (игнорируя строки из скрипта)
         String name = promptString("Введите имя транспортного средства (не пустая строка): ", true);
         long x = promptLong("Введите координату X (0..225): ", 0, 225);
         int y = promptInt("Введите координату Y (0..493): ", 0, 493);
@@ -66,7 +68,7 @@ public class Update implements Command {
     private String promptString(String prompt, boolean nonEmpty) {
         String input;
         while (true) {
-            input = console.readLine(prompt);
+            input = console.readInteractiveLine(prompt);
             if (nonEmpty && (input == null || input.trim().isEmpty())) {
                 System.out.println("Ошибка: строка не может быть пустой.");
             } else {
@@ -78,7 +80,7 @@ public class Update implements Command {
 
     private long promptLong(String prompt, long min, long max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 long value = Long.parseLong(input);
                 if (value < min || value > max) {
@@ -94,7 +96,7 @@ public class Update implements Command {
 
     private int promptInt(String prompt, int min, int max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 int value = Integer.parseInt(input);
                 if (value < min || value > max) {
@@ -110,7 +112,7 @@ public class Update implements Command {
 
     private float promptFloat(String prompt, float min, float max) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             try {
                 float value = Float.parseFloat(input);
                 if (value <= min || value > max) {
@@ -126,7 +128,7 @@ public class Update implements Command {
 
     private <E extends Enum<E>> E promptEnum(String prompt, Class<E> enumClass) {
         while (true) {
-            String input = console.readLine(prompt);
+            String input = console.readInteractiveLine(prompt);
             if (input == null || input.trim().isEmpty()) {
                 return null;
             }
