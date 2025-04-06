@@ -1,2 +1,10 @@
-remove_all_by_type
+help
+info
+show
+insert
+print_field_ascending_fuel_type
+group_counting_by_engine_power
+history
+update
+
 
