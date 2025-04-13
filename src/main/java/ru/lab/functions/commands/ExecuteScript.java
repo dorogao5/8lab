@@ -49,7 +49,7 @@ public class ExecuteScript implements Command {
         String fileName = args[0];
         File scriptFile = new File(fileName);
         if (!scriptFile.exists() || !scriptFile.isFile()) {
-            System.out.println("Ошибка: файл " + fileName + " не найден.");
+            System.out.println("Ошибка: файл " + fileName + " не найден. Возможно к нему нет доступа.");
             return;
         }
         if (!fileName.toLowerCase().endsWith(".txt")) {
@@ -61,6 +61,8 @@ public class ExecuteScript implements Command {
             return;
         }
         isExecutingScript = true;
+
+        // конструкция try-with-resources, которая автоматически закрывает ресурс по завершении работы блока try
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(scriptFile), StandardCharsets.UTF_8))) {
             String line = reader.readLine();
             if (line == null) {

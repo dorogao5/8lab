@@ -19,7 +19,6 @@ public class Main {
             console.start();
         } catch (Exception e) {
             System.err.println("Ошибка запуска приложения: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }

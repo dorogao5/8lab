@@ -69,7 +69,6 @@ public class FileManager implements IFileManager {
                 collection.put(++counter, vehicle);
             } catch (Exception e) {
                 System.err.println("Ошибка обработки строки: " + String.join(",", nextLine));
-                e.printStackTrace();
             }
         }
         return collection;
@@ -104,7 +103,24 @@ public class FileManager implements IFileManager {
      */
     @Override
     public void save(String fileName, Hashtable<Integer, Vehicle> collection) throws Exception {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8));
+        File file = new File(fileName);
+        if (file.isDirectory()) {
+            throw new Exception("Указанный путь " + fileName + " является директорией.");
+        }
+        if (file.exists()) {
+            if (!file.canWrite()) {
+                throw new Exception("Нет прав для записи в файл " + fileName);
+            }
+        } else {
+            File parent = file.getAbsoluteFile().getParentFile();
+            if (parent != null && (!parent.exists() || !parent.canWrite())) {
+                throw new Exception("Невозможно создать файл " + fileName +
+                        ". Нет прав доступа к директории " + parent.getAbsolutePath());
+            }
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8));
              CSVWriter csvWriter = new CSVWriter(bw,
                      CSVWriter.DEFAULT_SEPARATOR,
                      CSVWriter.NO_QUOTE_CHARACTER,

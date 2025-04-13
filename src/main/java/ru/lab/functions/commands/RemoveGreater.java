@@ -6,6 +6,7 @@ import ru.lab.model.Vehicle;
 import ru.lab.builder.Console;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -50,6 +51,20 @@ public class RemoveGreater implements Command {
         for (Integer key : keysToRemove) {
             collection.remove(key);
         }
+
+        // Перенумеровываем элементы
+        List<Integer> remainingKeys = new ArrayList<>(collection.keySet());
+        Collections.sort(remainingKeys);
+        Hashtable<Integer, Vehicle> newCollection = new Hashtable<>();
+        int newKey = 1;
+        for (Integer oldKey : remainingKeys) {
+            Vehicle v = collection.get(oldKey);
+            v.setId(newKey);
+            newCollection.put(newKey, v);
+            newKey++;
+        }
+        collection.clear();
+        collection.putAll(newCollection);
         System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с enginePower больше " + enginePowerThreshold + ".");
     }
 

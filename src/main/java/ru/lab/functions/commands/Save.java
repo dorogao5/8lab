@@ -4,7 +4,7 @@ import ru.lab.functions.Command;
 import ru.lab.util.IFileManager;
 import ru.lab.util.CollectionManager;
 import ru.lab.model.Vehicle;
-
+import java.io.File;
 import java.util.Hashtable;
 
 /**
@@ -36,12 +36,29 @@ public class Save implements Command {
     @Override
     public void execute(String[] args) {
         try {
+            // Проверка прав доступа и существования файла перед сохранением
+            File file = new File(fileName);
+            if (file.isDirectory()) {
+                System.err.println("Ошибка: Указанный путь " + fileName + " является директорией.");
+                return;
+            }
+            if (file.exists() && !file.canWrite()) {
+                System.err.println("Ошибка: Нет прав для записи в файл " + fileName);
+                return;
+            }
+            if (!file.exists()) {
+                File parent = file.getAbsoluteFile().getParentFile();
+                if (parent != null && (!parent.exists() || !parent.canWrite())) {
+                    System.err.println("Ошибка: Невозможно создать файл " + fileName +
+                            ". Нет прав доступа к директории " + parent.getAbsolutePath());
+                    return;
+                }
+            }
             Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
             fileManager.save(fileName, collection);
             System.out.println("Коллекция успешно сохранена в файл: " + fileName);
         } catch (Exception e) {
             System.err.println("Ошибка сохранения коллекции: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

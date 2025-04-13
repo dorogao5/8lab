@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Команда для добавления нового элемента с заданным ключом.
- * Формат: insert <key> - затем последовательно считываются поля нового элемента.
+ * Формат: insert &lt;key> - затем последовательно считываются поля нового элемента.
  * При добавлении все элементы с ключами >= заданному сдвигаются (их ключ увеличивается на 1).
  */
 public class Insert implements Command {
@@ -43,20 +43,13 @@ public class Insert implements Command {
             insertKey = Integer.parseInt(args[0]);
         }
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
-        try {
-
-            if (insertKey <= 0) {
-                System.out.println("Ошибка: ключ должен быть положительным числом.");
-                return;
-            }
-            int maxKey = collection.isEmpty() ? 0 : Collections.max(collection.keySet());
-            if (insertKey > maxKey + 1) {
-                System.out.println("Ошибка: Невозможно вставить элемент с ключом " + insertKey +
+        if (insertKey <= 0) {
+            System.out.println("Ошибка: ключ должен быть положительным числом.");
+            return;
+        }
+        int maxKey = collection.isEmpty() ? 0 : collection.size();
+        if (insertKey > maxKey + 1) {System.out.println("Ошибка: Невозможно вставить элемент с ключом " + insertKey +
                         ". Максимальный допустимый ключ: " + (maxKey + 1));
-                return;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Ошибка: ключ должен быть числом.");
             return;
         }
 

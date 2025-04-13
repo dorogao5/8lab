@@ -10,7 +10,7 @@ import ru.lab.builder.Console;
 
 /**
  * Команда для обновления значения элемента коллекции по заданному ключу.
- * Формат: update <key> - затем последовательно считываются данные нового элемента.
+ * Формат: update &lt;key> - затем последовательно считываются данные нового элемента.
  */
 public class Update implements Command {
     private final CollectionManager collectionManager;
@@ -36,14 +36,8 @@ public class Update implements Command {
         else {
             updateKey = Integer.parseInt(args[0]);
         }
-        try {
-
-            if (updateKey <= 0) {
-                System.out.println("Ошибка: ключ должен быть положительным числом.");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Ошибка: ключ должен быть числом.");
+        if (updateKey <= 0) {
+            System.out.println("Ошибка: ключ должен быть положительным числом.");
             return;
         }
         if (!collectionManager.getCollection().containsKey(updateKey)) {

@@ -4,8 +4,6 @@ import ru.lab.util.IFileManager;
 import ru.lab.util.FileManager;
 import ru.lab.model.Vehicle;
 import ru.lab.util.CollectionManager;
-import ru.lab.builder.Console;
-import ru.lab.builder.ScriptManager;
 import ru.lab.functions.Invoker;
 import ru.lab.functions.commands.Help;
 import ru.lab.functions.commands.Info;
@@ -47,7 +45,7 @@ public class ApplicationBuilder {
      * @param args аргументы командной строки; первый аргумент должен содержать имя CSV файла.
      * @throws IllegalArgumentException если имя файла не указано.
      */
-    public ApplicationBuilder(String[] args) {
+    public ApplicationBuilder(String[] args) throws IllegalArgumentException {
         if (args.length < 1) {
             throw new IllegalArgumentException("Необходимо указать имя CSV файла в качестве аргумента командной строки.");
         }
@@ -60,7 +58,6 @@ public class ApplicationBuilder {
             System.out.println("Коллекция успешно загружена из файла: " + fileName);
         } catch (Exception e) {
             System.err.println("Ошибка при загрузке коллекции: " + e.getMessage());
-            e.printStackTrace();
             loadedCollection = new Hashtable<>();
         }
 

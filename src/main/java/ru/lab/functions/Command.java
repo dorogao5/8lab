@@ -8,8 +8,9 @@ public interface Command {
      * Выполняет основное действие команды.
      *
      * @param args аргументы команды.
+     *
      */
-    void execute(String[] args);
+    void execute(String[] args) throws Exception;
 
     /**
      * Возвращает краткое описание команды (для справки).
