@@ -21,8 +21,9 @@ public interface ICollectionManager {
      * Если поле id транспортного средства не установлено (&lt;= 0), генерируется новый уникальный id.
      *
      * @param vehicle объект Vehicle для добавления.
+     * @return The actual ID assigned to the vehicle in the collection.
      */
-    void addVehicle(Vehicle vehicle);
+    int addVehicle(Vehicle vehicle);
     // Дополнительные методы (update, remove и т.д.) можно добавить по необходимости.
 
     void updateVehicle(Vehicle vehicle);

@@ -17,6 +17,7 @@ public class DBCollectionManager {
             "values (nextval('vehicle_seq'), ?, ?, ?, ?, ?, ?, ?, ?);";
 
     private final String CLEAR_ALL_VEHICLES = "delete from vehicles";
+    private final String CLEAR_USER_VEHICLES = "delete from vehicles where owner = ?";
 
     private final String GET_NEXT_ID = "select nextval('vehicle_seq')";
 
@@ -79,7 +80,7 @@ public class DBCollectionManager {
             ps1.setFloat(5, vehicle.getEnginePower());
             ps1.setString(6, vehicle.getType() == null ? null : vehicle.getType().toString());
             ps1.setString(7, vehicle.getFuelType() == null ? null : vehicle.getFuelType().toString());
-            ps1.setString(8, DBUserManager.getInstance().getCurrentUser().getUsername());
+            ps1.setString(8, vehicle.getOwner());
             ps1.execute();
             // System.out.println("vehicle with id [" + vehicle.getId() + "] was added.");
         } catch (SQLException e) {
@@ -127,6 +128,18 @@ public class DBCollectionManager {
             conn.createStatement().execute(statement);
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void clearByUser(String username) {
+        try (PreparedStatement ps = conn.prepareStatement(CLEAR_USER_VEHICLES)) {
+            ps.setString(1, username);
+            ps.executeUpdate();
+            // System.out.println("Vehicles for user [" + username + "] cleared from DB.");
+        } catch (SQLException e) {
+            System.err.println("Error clearing vehicles for user " + username + ": " + e.getMessage());
+            // Consider if throwing a RuntimeException is appropriate or if specific handling is needed.
             throw new RuntimeException(e);
         }
     }

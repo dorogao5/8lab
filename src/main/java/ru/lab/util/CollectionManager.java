@@ -4,6 +4,9 @@ import ru.lab.model.Vehicle;
 import ru.lab.model.VehicleType;
 
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Класс для управления коллекцией транспортных средств.
@@ -47,20 +50,35 @@ public class CollectionManager implements ICollectionManager {
 
     /**
      * Добавляет транспортное средство в коллекцию.
-     * Если у объекта не задан id (id &amp;lt;= 0), генерирует уникальный id.
+     * If the object does not have an ID set (id &lt;= 0), generates a unique sequential ID.
+     * If the object has an ID > 0, it might overwrite an existing entry or create a gap,
+     * it's generally expected that vehicles passed here might have ID 0 or an ID from DB sequence.
+     * This implementation now ensures sequential IDs by calculating the next available one.
      *
      * @param vehicle объект Vehicle для добавления.
+     * @return The actual sequential ID assigned to the vehicle in the collection.
      */
     @Override
-    public void addVehicle(Vehicle vehicle) {
-        try {
-            vehicle.setId(dbCollectionManager.getNextId());
-            vehicle.setCreationDate(new Date());
-            vehicle.setOwner(DBUserManager.getInstance().getCurrentUser().getUsername());
-            this.collection.put(vehicle.getId(), vehicle);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+    public int addVehicle(Vehicle vehicle) {
+        // Calculate the next sequential ID based on current max ID in the collection
+        int newId = this.collection.keySet().stream()
+                .max(Integer::compareTo)
+                .orElse(0) + 1;
+
+        // Set the calculated ID on the vehicle object
+        vehicle.setId(newId);
+
+        // Add warnings if owner or creationDate are missing (as before, but kept)
+        if (vehicle.getOwner() == null || vehicle.getOwner().isEmpty()) {
+            System.err.println("Warning: Adding vehicle without an owner.");
         }
+        if (vehicle.getCreationDate() == null) {
+            // This shouldn't happen if Insert.java uses new Date(), but good to keep the check
+            System.err.println("Warning: Adding vehicle without a creation date.");
+        }
+        this.collection.put(newId, vehicle); // Add using the new sequential ID as the key
+        // Return the assigned sequential ID
+        return newId;
     }
 
     @Override
@@ -130,28 +148,32 @@ public class CollectionManager implements ICollectionManager {
     }
 
     private void removeVehiclesFromCollection(List<Integer> keysToRemove) {
-        int maxID = this.collection.size();
-        int newMaxID = maxID - keysToRemove.size() + 1;
-
         for (Integer key : keysToRemove) {
             this.collection.remove(key);
         }
+        this.reIndexCollection();
+    }
 
-        this.dbCollectionManager.alterID(newMaxID);
-
-        List<Integer> remainingKeys = new ArrayList<>(this.collection.keySet());
-        Collections.sort(remainingKeys);
-        Hashtable<Integer, Vehicle> newCollection = new Hashtable<>();
-        int newKey = 1;
-        for (Integer oldKey : remainingKeys) {
-            Vehicle v = this.collection.get(oldKey);
-            v.setId(newKey);
-            newCollection.put(newKey, v);
-            newKey++;
+    /**
+     * Re-indexes the collection to ensure sequential IDs starting from 1.
+     * Assumes Vehicle.setId() method exists and is usable.
+     */
+    private void reIndexCollection() {
+        if (this.collection.isEmpty()) {
+            return;
         }
 
-        this.collection.clear();
-        this.collection.putAll(newCollection);
+        List<Vehicle> sortedVehicles = new ArrayList<>(this.collection.values());
+        sortedVehicles.sort(Comparator.comparingInt(Vehicle::getId));
+
+        Hashtable<Integer, Vehicle> newCollection = new Hashtable<>();
+        int newCurrentId = 1;
+        for (Vehicle vehicle : sortedVehicles) {
+            vehicle.setId(newCurrentId);
+            newCollection.put(newCurrentId, vehicle);
+            newCurrentId++;
+        }
+        this.collection = newCollection;
     }
 
     /**
@@ -165,13 +187,21 @@ public class CollectionManager implements ICollectionManager {
 
     @Override
     public void clear() {
-        this.dbCollectionManager.alterID(1);
         this.collection.clear();
+    }
+
+    public void clearByUser(String username) {
+        List<Integer> keysToRemove = new ArrayList<>();
+        for (Map.Entry<Integer, Vehicle> entry : this.collection.entrySet()) {
+            if (entry.getValue().getOwner() != null && entry.getValue().getOwner().equals(username)) {
+                keysToRemove.add(entry.getKey());
+            }
+        }
+        removeVehiclesFromCollection(keysToRemove);
     }
 
     @Override
     public void save() {
-        //System.out.println("сохраняю коллекцию в БД");
         dbCollectionManager.save(this.collection);
     }
 }

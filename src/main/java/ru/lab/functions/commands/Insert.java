@@ -8,6 +8,8 @@ import ru.lab.model.VehicleType;
 import ru.lab.model.FuelType;
 import ru.lab.builder.Console;
 import ru.lab.util.DBUserManager;
+import ru.lab.util.DBCollectionManager;
+import java.util.Date;
 
 /**
  * Команда для добавления нового элемента с заданным ключом.
@@ -16,16 +18,19 @@ import ru.lab.util.DBUserManager;
  */
 public class Insert extends AbstractCommand {
     private final CollectionManager collectionManager;
+    private final DBCollectionManager dbCollectionManager;
 
     /**
      * Конструктор команды Insert.
      *
      * @param collectionManager менеджер коллекции транспортных средств.
      * @param console           объект Console, предоставляющий метод readInteractiveLine.
+     * @param dbCollectionManager менеджер для взаимодействия с БД коллекции.
      */
-    public Insert(CollectionManager collectionManager, Console console) {
+    public Insert(CollectionManager collectionManager, DBCollectionManager dbCollectionManager, Console console) {
         super(console);
         this.collectionManager = collectionManager;
+        this.dbCollectionManager = dbCollectionManager;
     }
 
     @Override
@@ -65,9 +70,23 @@ public class Insert extends AbstractCommand {
         FuelType ftype = promptEnum("Введите тип топлива (GASOLINE, KEROSENE, NUCLEAR, PLASMA) или пустую строку для null: ", FuelType.class);
 
         // Создаем новый объект Vehicle
-        Vehicle newVehicle = new Vehicle(0, name, new Coordinates(x, y), enginePower, vtype, ftype);
+        // Remove fetching ID from DB sequence
+        // int newId = dbManager.getNextId();
+        String owner = DBUserManager.getInstance().getCurrentUser().getUsername();
+        // Create Vehicle with a placeholder ID (e.g., 0), the actual ID will be set by addVehicle
+        Vehicle newVehicle = new Vehicle(
+                0, // Placeholder ID
+                name,
+                new Coordinates(x, y),
+                enginePower,
+                new Date(),
+                vtype,
+                ftype,
+                owner
+        );
 
-        collectionManager.addVehicle(newVehicle);
+        // Add vehicle to collection and get the final assigned sequential ID
+        int finalId = collectionManager.addVehicle(newVehicle);
         /*
         newVehicle.setId(insertKey);
 
@@ -88,7 +107,8 @@ public class Insert extends AbstractCommand {
         // Вставляем новый элемент
         collection.put(insertKey, newVehicle);
             */
-        System.out.println("Элемент успешно добавлен с ключом " + newVehicle.getId() + ".");
+        // Print the message using the final ID returned by addVehicle
+        System.out.println("Элемент успешно добавлен с ключом " + finalId + ".");
     }
 
     @Override

@@ -71,7 +71,7 @@ public class ApplicationBuilder {
         invoker.register("history", new History(invoker)); //ok
         invoker.register("clear", new Clear(collectionManager)); //ok
         invoker.register("save", new Save(collectionManager));
-        invoker.register("insert", new Insert(collectionManager, createConsoleForInput())); //ok
+        invoker.register("insert", new Insert(collectionManager, dbManager, createConsoleForInput())); //ok
         invoker.register("update", new Update(collectionManager, createConsoleForInput())); //ok
         invoker.register("remove_key", new RemoveKey(collectionManager)); //ok
         invoker.register("remove_lower_key", new RemoveLowerKey(collectionManager)); //ok

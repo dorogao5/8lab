@@ -30,9 +30,9 @@ public class Clear implements Command {
             System.out.println("Нужно авторизоваться для выполнения этой операции");
             return;
         }
-        collectionManager.clear();
-        System.out.println("Коллекция очищена.");
-
+        String username = DBUserManager.getInstance().getCurrentUser().getUsername();
+        collectionManager.clearByUser(username);
+        System.out.println("Ваши записи в коллекции очищены.");
     }
 
     /**
