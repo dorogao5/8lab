@@ -3,20 +3,17 @@ package ru.lab;
 import ru.lab.builder.ApplicationBuilder;
 import ru.lab.builder.Console;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 /**
  * Главный класс для запуска приложения.
  */
 public class Main {
-    private static String connectionString = "jdbc:postgresql://localhost:5432/ivordb?user=sofia&password=sofia";
-    private static String username = "user=sofia";
-    private static String password = "password=sofia";
-    private static String db = "ivordb";
+    private static String connectionString = "jdbc:postgresql://pg:5432/studs?user=s406435&password=6GfE0Z3kbSXCOWmR";
+    private static String username = "user=s406435";
+    private static String password = "password=6GfE0Z3kbSXCOWmR";
+    private static String db = "studs";
     private static int port = 5432;
-    private static String host = "localhost";
+    private static String host = "pg";
 
     /**
      * Точка входа в приложение.

@@ -1,7 +1,6 @@
 package ru.lab.functions;
 
 import ru.lab.builder.Console;
-import ru.lab.util.CollectionManager;
 
 /**
  * Абстрактный класс для реализации команд.

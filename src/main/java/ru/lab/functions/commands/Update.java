@@ -32,11 +32,16 @@ public class Update extends AbstractCommand {
     @Override
     public void execute(String[] args) {
         int updateKey;
-        if (args.length < 1) {
-            updateKey = Integer.parseInt(console.readInteractiveLine("Ошибка: необходимо указать ключ для обновления. Введите ключ:"));
-        }
-        else {
-            updateKey = Integer.parseInt(args[0]);
+        try {
+            if (args.length < 1) {
+                String input = console.readInteractiveLine("Ошибка: необходимо указать ключ для обновления. Введите ключ:");
+                updateKey = Integer.parseInt(input.trim());
+            } else {
+                updateKey = Integer.parseInt(args[0].trim());
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Ошибка: ключ должен быть целым числом.");
+            return;
         }
         if (updateKey <= 0) {
             System.out.println("Ошибка: ключ должен быть положительным числом.");

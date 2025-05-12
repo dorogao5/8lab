@@ -2,6 +2,7 @@ package ru.lab.functions.commands;
 
 import ru.lab.functions.Command;
 import ru.lab.util.CollectionManager;
+import ru.lab.util.DBUserManager;
 
 /**
  * Команда для очистки коллекции.
@@ -25,8 +26,13 @@ public class Clear implements Command {
      */
     @Override
     public void execute(String[] args) {
+        if(DBUserManager.getInstance().getCurrentUser() == null) {
+            System.out.println("Нужно авторизоваться для выполнения этой операции");
+            return;
+        }
         collectionManager.clear();
         System.out.println("Коллекция очищена.");
+
     }
 
     /**

@@ -1,9 +1,6 @@
 package ru.lab.builder;
 
 import ru.lab.functions.commands.*;
-import ru.lab.model.Coordinates;
-import ru.lab.model.FuelType;
-import ru.lab.model.VehicleType;
 import ru.lab.util.DBCollectionManager;
 import ru.lab.util.IFileManager;
 import ru.lab.util.FileManager;
@@ -37,12 +34,7 @@ public class ApplicationBuilder {
      * @throws IllegalArgumentException если имя файла не указано.
      */
     public ApplicationBuilder(String[] args) throws IllegalArgumentException {
-        /*
-        if (args.length < 1) {
-            throw new IllegalArgumentException("Необходимо указать имя CSV файла в качестве аргумента командной строки.");
-        }
-        fileName = args[0];
-        */
+
         fileName = null;
         fileManager = new FileManager();
 
@@ -63,11 +55,6 @@ public class ApplicationBuilder {
 
         collectionManager = new CollectionManager(loadedCollection, dbManager);
 
-        /*
-        for (Vehicle vehicle : loadedCollection.values()) {
-            collectionManager.addVehicle(vehicle);
-        }
-        */
 
         scanner = new Scanner(System.in);
         invoker = new Invoker();
@@ -75,6 +62,9 @@ public class ApplicationBuilder {
 
         // Регистрация базовых команд
         invoker.register("help", new Help(invoker.getCommands()));//ok
+        invoker.register("register", new RegisterUser(createConsoleForInput()));
+        invoker.register("login", new LoginUser(createConsoleForInput()));
+        invoker.register("logout", new LogoutUser(createConsoleForInput()));
         invoker.register("info", new Info(collectionManager)); //ok
         invoker.register("show", new Show(collectionManager)); //ok
         invoker.register("exit", new Exit()); //ok
@@ -90,10 +80,7 @@ public class ApplicationBuilder {
         invoker.register("print_field_ascending_fuel_type", new PrintFieldAscendingFuelType(collectionManager)); //not needed
         invoker.register("group_counting_by_engine_power", new GroupCountingByEnginePower(collectionManager)); //not needed
         invoker.register("execute_script", new ExecuteScript(invoker, scriptManager)); //not needed
-        invoker.register("say_hello", new Say_hello()); //not needed
-        invoker.register("register_user", new RegisterUser(createConsoleForInput()));
-        invoker.register("login_user", new LoginUser(createConsoleForInput()));
-        invoker.register("logout_user", new LogoutUser(createConsoleForInput()));
+
     }
 
     /**
