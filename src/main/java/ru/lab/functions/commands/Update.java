@@ -1,18 +1,19 @@
 package ru.lab.functions.commands;
 
-import ru.lab.functions.Command;
+import ru.lab.functions.AbstractCommand;
 import ru.lab.util.CollectionManager;
 import ru.lab.model.Vehicle;
 import ru.lab.model.Coordinates;
 import ru.lab.model.VehicleType;
 import ru.lab.model.FuelType;
 import ru.lab.builder.Console;
+import ru.lab.util.DBUserManager;
 
 /**
  * Команда для обновления значения элемента коллекции по заданному ключу.
  * Формат: update &lt;key> - затем последовательно считываются данные нового элемента.
  */
-public class Update implements Command {
+public class Update extends AbstractCommand {
     private final CollectionManager collectionManager;
     private final Console console; // Используем интерактивный ввод
 
@@ -23,6 +24,7 @@ public class Update implements Command {
      * @param console           объект Console для считывания данных.
      */
     public Update(CollectionManager collectionManager, Console console) {
+        super(console);
         this.collectionManager = collectionManager;
         this.console = console;
     }
@@ -44,6 +46,16 @@ public class Update implements Command {
             System.out.println("Ошибка: элемент с ключом " + updateKey + " не найден.");
             return;
         }
+        if(DBUserManager.getInstance().getCurrentUser() == null) {
+            System.out.println("Нужно авторизоваться для выполнения этой операции");
+            return;
+        }
+
+        if(!collectionManager.getCollection().get(updateKey).getOwner().equals(DBUserManager.getInstance().getCurrentUser().getUsername())) {
+            System.out.println("Ошибка: элемент с ключом " + updateKey + " принадлежит другому пользователю [" +
+                    collectionManager.getCollection().get(updateKey).getOwner() + "]");
+            return;
+        }
 
         // Считываем данные для нового элемента через интерактивный ввод (игнорируя строки из скрипта)
         String name = promptString("Введите имя транспортного средства (не пустая строка): ", true);
@@ -53,90 +65,16 @@ public class Update implements Command {
         VehicleType vtype = promptEnum("Введите тип транспортного средства (BOAT, CHOPPER, HOVERBOARD, SPACESHIP) или пустую строку для null: ", VehicleType.class);
         FuelType ftype = promptEnum("Введите тип топлива (GASOLINE, KEROSENE, NUCLEAR, PLASMA) или пустую строку для null: ", FuelType.class);
 
-        Vehicle newVehicle = new Vehicle(0, name, new Coordinates(x, y), enginePower, vtype, ftype);
-        newVehicle.setId(updateKey);
-        collectionManager.getCollection().put(updateKey, newVehicle);
+
+        Vehicle updatedVehicle = collectionManager.getCollection().get(updateKey);
+        updatedVehicle.setName(name);
+        updatedVehicle.setCoordinates(new Coordinates(x, y));
+        updatedVehicle.setEnginePower(enginePower);
+        updatedVehicle.setType(vtype);
+        updatedVehicle.setFuelType(ftype);
+
+        collectionManager.updateVehicle(updatedVehicle);
         System.out.println("Элемент с ключом " + updateKey + " успешно обновлен.");
-    }
-
-    private String promptString(String prompt, boolean nonEmpty) {
-        String input;
-        while (true) {
-            input = console.readInteractiveLine(prompt);
-            if (nonEmpty && (input == null || input.trim().isEmpty())) {
-                System.out.println("Ошибка: строка не может быть пустой.");
-            } else {
-                break;
-            }
-        }
-        return input;
-    }
-
-    private long promptLong(String prompt, long min, long max) {
-        while (true) {
-            String input = console.readInteractiveLine(prompt);
-            try {
-                long value = Long.parseLong(input);
-                if (value < min || value > max) {
-                    System.out.println("Ошибка: значение должно быть в диапазоне [" + min + ", " + max + "].");
-                } else {
-                    return value;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите корректное число.");
-            }
-        }
-    }
-
-    private int promptInt(String prompt, int min, int max) {
-        while (true) {
-            String input = console.readInteractiveLine(prompt);
-            try {
-                int value = Integer.parseInt(input);
-                if (value < min || value > max) {
-                    System.out.println("Ошибка: значение должно быть в диапазоне [" + min + ", " + max + "].");
-                } else {
-                    return value;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите целое число.");
-            }
-        }
-    }
-
-    private float promptFloat(String prompt, float min, float max) {
-        while (true) {
-            String input = console.readInteractiveLine(prompt);
-            try {
-                float value = Float.parseFloat(input);
-                if (value <= min || value > max) {
-                    System.out.println("Ошибка: значение должно быть больше " + min + " и не превышать " + max + ".");
-                } else {
-                    return value;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите число с плавающей запятой.");
-            }
-        }
-    }
-
-    private <E extends Enum<E>> E promptEnum(String prompt, Class<E> enumClass) {
-        while (true) {
-            String input = console.readInteractiveLine(prompt);
-            if (input == null || input.trim().isEmpty()) {
-                return null;
-            }
-            try {
-                return Enum.valueOf(enumClass, input.trim().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                System.out.print("Доступные значения: ");
-                for (E constant : enumClass.getEnumConstants()) {
-                    System.out.print(constant.name() + " ");
-                }
-                System.out.println();
-                System.out.println("Ошибка: введите одно из указанных значений.");
-            }
-        }
     }
 
     @Override

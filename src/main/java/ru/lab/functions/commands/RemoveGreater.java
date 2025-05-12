@@ -1,14 +1,9 @@
 package ru.lab.functions.commands;
 
-import ru.lab.functions.Command;
+import ru.lab.functions.AbstractCommand;
 import ru.lab.util.CollectionManager;
-import ru.lab.model.Vehicle;
 import ru.lab.builder.Console;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.List;
+import ru.lab.util.DBUserManager;
 
 /**
  * Команда remove_greater {element} - удалить из коллекции все элементы,
@@ -16,9 +11,8 @@ import java.util.List;
  * <p>
  * Формат: команда без аргументов, затем последовательно запрашиваются данные для элемента-порога.
  */
-public class RemoveGreater implements Command {
+public class RemoveGreater extends AbstractCommand {
     private final CollectionManager collectionManager;
-    private final Console console; // Используем Console для поддержки скриптов
 
     /**
      * Конструктор команды RemoveGreater.
@@ -27,8 +21,8 @@ public class RemoveGreater implements Command {
      * @param console           объект Console для считывания данных.
      */
     public RemoveGreater(CollectionManager collectionManager, Console console) {
+        super(console);
         this.collectionManager = collectionManager;
-        this.console = console;
     }
 
     /**
@@ -39,12 +33,20 @@ public class RemoveGreater implements Command {
      */
     @Override
     public void execute(String[] args) {
+        if(DBUserManager.getInstance().getCurrentUser() == null) {
+            System.out.println("Нужно авторизоваться для выполнения этой операции");
+            return;
+        }
+
         float enginePowerThreshold = promptFloat("Введите порог мощности двигателя (enginePower): ", 0, Float.MAX_VALUE);
+
+        /*
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         List<Integer> keysToRemove = new ArrayList<>();
         for (Integer key : collection.keySet()) {
             Vehicle v = collection.get(key);
-            if (v.getEnginePower() > enginePowerThreshold) {
+            if (v.getEnginePower() > enginePowerThreshold &&
+                    v.getOwner().equals(UserManager.getInstance().getCurrentUser().getUsername())) {
                 keysToRemove.add(key);
             }
         }
@@ -65,25 +67,11 @@ public class RemoveGreater implements Command {
         }
         collection.clear();
         collection.putAll(newCollection);
-        System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с enginePower больше " + enginePowerThreshold + ".");
+        */
+
+        this.collectionManager.removeVehicleWithEnginePowerGreaterThen(enginePowerThreshold);
     }
 
-    // Вспомогательные методы, использующие console.readInteractiveLine(prompt)
-    private float promptFloat(String prompt, float min, float max) {
-        while (true) {
-            String input = console.readInteractiveLine(prompt);
-            try {
-                float value = Float.parseFloat(input);
-                if (value <= min || value > max) {
-                    System.out.println("Ошибка: значение должно быть больше " + min + ".");
-                } else {
-                    return value;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите число с плавающей запятой.");
-            }
-        }
-    }
 
     @Override
     public String getDescription() {

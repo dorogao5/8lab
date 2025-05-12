@@ -3,11 +3,9 @@ package ru.lab.functions.commands;
 import ru.lab.functions.Command;
 import ru.lab.util.CollectionManager;
 import ru.lab.model.Vehicle;
+import ru.lab.util.DBUserManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
-import java.util.List;
 
 /**
  * Команда для удаления элемента коллекции по заданному ключу.
@@ -49,12 +47,25 @@ public class RemoveKey implements Command {
             return;
         }
 
+        if(DBUserManager.getInstance().getCurrentUser() == null) {
+            System.out.println("Нужно авторизоваться для выполнения этой операции");
+            return;
+        }
+
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         if (!collection.containsKey(removeKey)) {
             System.out.println("Ошибка: элемент с ключом " + removeKey + " не найден.");
             return;
         }
 
+        if(!collectionManager.getCollection().get(removeKey).getOwner().equals(DBUserManager.getInstance().getCurrentUser().getUsername())) {
+            System.out.println("Ошибка: элемент с ключом " + removeKey + " принадлежит другому пользователю [" +
+                    collectionManager.getCollection().get(removeKey).getOwner() + "]");
+            return;
+        }
+
+
+        /*
         // Удаляем элемент с заданным ключом
         collection.remove(removeKey);
 
@@ -73,7 +84,9 @@ public class RemoveKey implements Command {
             v.setId(newKey);
             collection.put(newKey, v);
         }
-        System.out.println("Элемент с ключом " + removeKey + " удален, остальные элементы перенумерованы.");
+        */
+
+        this.collectionManager.removeVehicleWithID(removeKey, false);
     }
 
     /**
@@ -83,6 +96,6 @@ public class RemoveKey implements Command {
      */
     @Override
     public String getDescription() {
-        return "remove_key null - удалить элемент из коллекции по его ключу и перенумеровать оставшиеся элементы";
+        return "remove_key key_value - удалить элемент из коллекции по его ключу";
     }
 }

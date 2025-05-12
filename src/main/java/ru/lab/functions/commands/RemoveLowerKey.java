@@ -2,12 +2,7 @@ package ru.lab.functions.commands;
 
 import ru.lab.functions.Command;
 import ru.lab.util.CollectionManager;
-import ru.lab.model.Vehicle;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.List;
+import ru.lab.util.DBUserManager;
 
 /**
  * Команда remove_lower_key null - удалить из коллекции все элементы, ключ которых меньше заданного,
@@ -49,10 +44,16 @@ public class RemoveLowerKey implements Command {
             return;
         }
 
+        if(DBUserManager.getInstance().getCurrentUser() == null) {
+            System.out.println("Нужно авторизоваться для выполнения этой операции");
+            return;
+        }
+
+        /*
         Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
         List<Integer> keysToRemove = new ArrayList<>();
         for (Integer key : collection.keySet()) {
-            if (key < givenKey) {
+            if (key < givenKey && collectionManager.getCollection().get(key).getOwner().equals(UserManager.getInstance().getCurrentUser().getUsername())) {
                 keysToRemove.add(key);
             }
         }
@@ -74,8 +75,11 @@ public class RemoveLowerKey implements Command {
         }
         collection.clear();
         collection.putAll(newCollection);
+         */
 
-        System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с ключом меньше " + givenKey + ".");
+
+        this.collectionManager.removeVehicleWithID(givenKey, true);
+        //System.out.println("Удалено " + keysToRemove.size() + " элемент(ов) с ключом меньше " + givenKey + ".");
     }
 
     /**
@@ -85,6 +89,6 @@ public class RemoveLowerKey implements Command {
      */
     @Override
     public String getDescription() {
-        return "remove_lower_key null - удалить из коллекции все элементы, ключ которых меньше заданного";
+        return "remove_lower_key key_value - удалить из коллекции все элементы, ключ которых меньше заданного";
     }
 }

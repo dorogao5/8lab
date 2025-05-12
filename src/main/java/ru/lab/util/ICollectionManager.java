@@ -1,6 +1,8 @@
 package ru.lab.util;
 
 import ru.lab.model.Vehicle;
+import ru.lab.model.VehicleType;
+
 import java.util.Hashtable;
 
 /**
@@ -22,4 +24,15 @@ public interface ICollectionManager {
      */
     void addVehicle(Vehicle vehicle);
     // Дополнительные методы (update, remove и т.д.) можно добавить по необходимости.
+
+    void updateVehicle(Vehicle vehicle);
+
+    void clear();
+
+    void removeVehicleWithID(Integer key, boolean lower);
+
+    void removeVehicleWithEnginePowerGreaterThen(float enginePower);
+
+    void removeVehicleWithType(VehicleType vehicleType);
+    void save();
 }

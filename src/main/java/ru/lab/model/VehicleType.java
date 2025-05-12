@@ -22,5 +22,9 @@ public enum VehicleType {
     /**
      * Космический корабль.
      */
-    SPACESHIP
+    SPACESHIP,
+    /**
+     * Обычная машина.
+     */
+    AUTO
 }

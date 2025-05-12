@@ -1,26 +1,15 @@
 package ru.lab.builder;
 
+import ru.lab.functions.commands.*;
+import ru.lab.model.Coordinates;
+import ru.lab.model.FuelType;
+import ru.lab.model.VehicleType;
+import ru.lab.util.DBCollectionManager;
 import ru.lab.util.IFileManager;
 import ru.lab.util.FileManager;
 import ru.lab.model.Vehicle;
 import ru.lab.util.CollectionManager;
 import ru.lab.functions.Invoker;
-import ru.lab.functions.commands.Help;
-import ru.lab.functions.commands.Info;
-import ru.lab.functions.commands.Show;
-import ru.lab.functions.commands.Exit;
-import ru.lab.functions.commands.History;
-import ru.lab.functions.commands.Clear;
-import ru.lab.functions.commands.Save;
-import ru.lab.functions.commands.Insert;
-import ru.lab.functions.commands.Update;
-import ru.lab.functions.commands.RemoveKey;
-import ru.lab.functions.commands.RemoveGreater;
-import ru.lab.functions.commands.RemoveLowerKey;
-import ru.lab.functions.commands.RemoveAllByType;
-import ru.lab.functions.commands.PrintFieldAscendingFuelType;
-import ru.lab.functions.commands.GroupCountingByEnginePower;
-import ru.lab.functions.commands.ExecuteScript;
 
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -39,6 +28,8 @@ public class ApplicationBuilder {
     private final String fileName;
     private final ScriptManager scriptManager; // менеджер строк для скриптов
 
+    private final DBCollectionManager dbManager;
+
     /**
      * Конструктор, выполняющий начальную настройку приложения.
      *
@@ -46,47 +37,63 @@ public class ApplicationBuilder {
      * @throws IllegalArgumentException если имя файла не указано.
      */
     public ApplicationBuilder(String[] args) throws IllegalArgumentException {
+        /*
         if (args.length < 1) {
             throw new IllegalArgumentException("Необходимо указать имя CSV файла в качестве аргумента командной строки.");
         }
         fileName = args[0];
+        */
+        fileName = null;
         fileManager = new FileManager();
 
+        dbManager = new DBCollectionManager();
+        //коллекция будет загружаться из базы данных
         Hashtable<Integer, Vehicle> loadedCollection;
         try {
-            loadedCollection = fileManager.load(fileName);
-            System.out.println("Коллекция успешно загружена из файла: " + fileName);
+            loadedCollection = dbManager.getCollection();
+            // System.out.println("1.0 коллекция успешно загружена из базы данных.");
+            // System.out.println("loaded collection with [" + loadedCollection.size() + "] elements");
         } catch (Exception e) {
-            System.err.println("Ошибка при загрузке коллекции: " + e.getMessage());
+            // System.err.println("2.0 ошибка при загрузке коллекции: " + e.getMessage());
             loadedCollection = new Hashtable<>();
+            System.exit(-1);
         }
 
-        collectionManager = new CollectionManager();
+        //System.exit(-1);
+
+        collectionManager = new CollectionManager(loadedCollection, dbManager);
+
+        /*
         for (Vehicle vehicle : loadedCollection.values()) {
             collectionManager.addVehicle(vehicle);
         }
+        */
 
         scanner = new Scanner(System.in);
         invoker = new Invoker();
         scriptManager = new ScriptManager();
 
         // Регистрация базовых команд
-        invoker.register("help", new Help(invoker.getCommands()));
-        invoker.register("info", new Info(collectionManager));
-        invoker.register("show", new Show(collectionManager));
-        invoker.register("exit", new Exit());
-        invoker.register("history", new History(invoker));
-        invoker.register("clear", new Clear(collectionManager));
-        invoker.register("save", new Save(fileManager, collectionManager, fileName));
-        invoker.register("insert", new Insert(collectionManager, createConsoleForInput()));
-        invoker.register("update", new Update(collectionManager, createConsoleForInput()));
-        invoker.register("remove_key", new RemoveKey(collectionManager));
-        invoker.register("remove_greater", new RemoveGreater(collectionManager, createConsoleForInput()));
-        invoker.register("remove_lower_key", new RemoveLowerKey(collectionManager));
-        invoker.register("remove_all_by_type", new RemoveAllByType(collectionManager, createConsoleForInput()));
-        invoker.register("print_field_ascending_fuel_type", new PrintFieldAscendingFuelType(collectionManager));
-        invoker.register("group_counting_by_engine_power", new GroupCountingByEnginePower(collectionManager));
-        invoker.register("execute_script", new ExecuteScript(invoker, scriptManager));
+        invoker.register("help", new Help(invoker.getCommands()));//ok
+        invoker.register("info", new Info(collectionManager)); //ok
+        invoker.register("show", new Show(collectionManager)); //ok
+        invoker.register("exit", new Exit()); //ok
+        invoker.register("history", new History(invoker)); //ok
+        invoker.register("clear", new Clear(collectionManager)); //ok
+        invoker.register("save", new Save(collectionManager));
+        invoker.register("insert", new Insert(collectionManager, createConsoleForInput())); //ok
+        invoker.register("update", new Update(collectionManager, createConsoleForInput())); //ok
+        invoker.register("remove_key", new RemoveKey(collectionManager)); //ok
+        invoker.register("remove_lower_key", new RemoveLowerKey(collectionManager)); //ok
+        invoker.register("remove_greater", new RemoveGreater(collectionManager, createConsoleForInput())); //ok
+        invoker.register("remove_all_by_type", new RemoveAllByType(collectionManager, createConsoleForInput())); //ok
+        invoker.register("print_field_ascending_fuel_type", new PrintFieldAscendingFuelType(collectionManager)); //not needed
+        invoker.register("group_counting_by_engine_power", new GroupCountingByEnginePower(collectionManager)); //not needed
+        invoker.register("execute_script", new ExecuteScript(invoker, scriptManager)); //not needed
+        invoker.register("say_hello", new Say_hello()); //not needed
+        invoker.register("register_user", new RegisterUser(createConsoleForInput()));
+        invoker.register("login_user", new LoginUser(createConsoleForInput()));
+        invoker.register("logout_user", new LogoutUser(createConsoleForInput()));
     }
 
     /**

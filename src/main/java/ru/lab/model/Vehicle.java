@@ -12,10 +12,11 @@ public class Vehicle {
     private int id;                   // > 0, уникальный (назначается извне)
     private String name;              // не null, не пустая строка
     private Coordinates coordinates;  // не null
-    private final Date creationDate;  // генерируется автоматически, не изменяется
+    private Date creationDate;  // генерируется автоматически, не изменяется
     private float enginePower;        // > 0
     private VehicleType type;         // может быть null
     private FuelType fuelType;        // может быть null
+    private String owner;
 
     /**
      * Конструктор, устанавливающий начальные значения.
@@ -32,14 +33,22 @@ public class Vehicle {
      */
     public Vehicle(int id, String name, Coordinates coordinates, float enginePower,
                    VehicleType type, FuelType fuelType) {
-        setId(id);
-        setName(name);
-        setCoordinates(coordinates);
-        setEnginePower(enginePower);
+        this.id = id;
+        this.name = name;
+        this.coordinates = coordinates;
+        this.enginePower = enginePower;
         this.creationDate = new Date();
         this.type = type;
         this.fuelType = fuelType;
     }
+
+    public Vehicle(int id, String name, Coordinates coordinates, float enginePower, Date creationDate,
+                   VehicleType vehicleType, FuelType fuelType, String owner) {
+        this(id, name, coordinates, enginePower, vehicleType, fuelType);
+        this.creationDate = creationDate;
+        this.owner = owner;
+    }
+
 
     /**
      * Возвращает уникальный идентификатор.
@@ -57,11 +66,14 @@ public class Vehicle {
      * @param id уникальный идентификатор (> 0).
      */
     public void setId(int id) {
+        /*
         if (id <= 0) {
             this.id = 0;
         } else {
             this.id = id;
         }
+         */
+        this.id = id;
     }
 
     /**
@@ -115,6 +127,10 @@ public class Vehicle {
      */
     public Date getCreationDate() {
         return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     /**
@@ -175,6 +191,14 @@ public class Vehicle {
         this.fuelType = fuelType;
     }
 
+    public String getOwner() {
+        return this.owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     /**
      * Возвращает строковое представление транспортного средства.
      *
@@ -190,6 +214,7 @@ public class Vehicle {
                 ", enginePower=" + enginePower +
                 ", type=" + type +
                 ", fuelType=" + fuelType +
-                '}';
+                ", owner=" + owner +
+                "}";
     }
 }
