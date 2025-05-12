@@ -40,35 +40,6 @@ public class RemoveGreater extends AbstractCommand {
 
         float enginePowerThreshold = promptFloat("Введите порог мощности двигателя (enginePower): ", 0, Float.MAX_VALUE);
 
-        /*
-        Hashtable<Integer, Vehicle> collection = collectionManager.getCollection();
-        List<Integer> keysToRemove = new ArrayList<>();
-        for (Integer key : collection.keySet()) {
-            Vehicle v = collection.get(key);
-            if (v.getEnginePower() > enginePowerThreshold &&
-                    v.getOwner().equals(UserManager.getInstance().getCurrentUser().getUsername())) {
-                keysToRemove.add(key);
-            }
-        }
-        for (Integer key : keysToRemove) {
-            collection.remove(key);
-        }
-
-        // Перенумеровываем элементы
-        List<Integer> remainingKeys = new ArrayList<>(collection.keySet());
-        Collections.sort(remainingKeys);
-        Hashtable<Integer, Vehicle> newCollection = new Hashtable<>();
-        int newKey = 1;
-        for (Integer oldKey : remainingKeys) {
-            Vehicle v = collection.get(oldKey);
-            v.setId(newKey);
-            newCollection.put(newKey, v);
-            newKey++;
-        }
-        collection.clear();
-        collection.putAll(newCollection);
-        */
-
         this.collectionManager.removeVehicleWithEnginePowerGreaterThen(enginePowerThreshold);
     }
 

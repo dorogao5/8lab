@@ -3,6 +3,7 @@ package ru.lab.functions.commands;
 import ru.lab.functions.Command;
 import ru.lab.functions.Invoker;
 import ru.lab.builder.ScriptManager;
+import ru.lab.util.DBUserManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,6 +44,10 @@ public class ExecuteScript implements Command {
     @Override
     public void execute(String[] args) {
         if (args.length < 1) {
+            if(DBUserManager.getInstance().getCurrentUser() == null) {
+                System.out.println("Нужно авторизоваться для выполнения этой операции");
+                return;
+            }
             System.out.println("Ошибка: необходимо указать имя файла скрипта.");
             return;
         }

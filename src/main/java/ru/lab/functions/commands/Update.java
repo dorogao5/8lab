@@ -31,6 +31,10 @@ public class Update extends AbstractCommand {
 
     @Override
     public void execute(String[] args) {
+        if(DBUserManager.getInstance().getCurrentUser() == null) {
+            System.out.println("Нужно авторизоваться для выполнения этой операции");
+            return;
+        }
         int updateKey;
         try {
             if (args.length < 1) {
@@ -51,10 +55,7 @@ public class Update extends AbstractCommand {
             System.out.println("Ошибка: элемент с ключом " + updateKey + " не найден.");
             return;
         }
-        if(DBUserManager.getInstance().getCurrentUser() == null) {
-            System.out.println("Нужно авторизоваться для выполнения этой операции");
-            return;
-        }
+
 
         if(!collectionManager.getCollection().get(updateKey).getOwner().equals(DBUserManager.getInstance().getCurrentUser().getUsername())) {
             System.out.println("Ошибка: элемент с ключом " + updateKey + " принадлежит другому пользователю [" +
