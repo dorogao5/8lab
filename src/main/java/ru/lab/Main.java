@@ -2,18 +2,21 @@ package ru.lab;
 
 import ru.lab.builder.ApplicationBuilder;
 import ru.lab.builder.Console;
+import gui.AuthFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 
 /**
  * Главный класс для запуска приложения.
  */
 public class Main {
-    private static String connectionString = "jdbc:postgresql://pg:5432/studs?user=s406435&password=6GfE0Z3kbSXCOWmR";
-    private static String username = "user=s406435";
-    private static String password = "password=6GfE0Z3kbSXCOWmR";
-    private static String db = "studs";
+    private static String connectionString = "jdbc:postgresql://188.213.0.226:5432/pgdb?user=doroga&password=OlzhasAlia2011";
+    private static String username = "user=doroga";
+    private static String password = "password=OlzhasAlia2011";
+    private static String db = "pgdb";
     private static int port = 5432;
-    private static String host = "pg";
+    private static String host = "188.213.0.226";
 
     /**
      * Точка входа в приложение.
@@ -51,9 +54,30 @@ public class Main {
 
             connectionString = "jdbc:postgresql://" + host + ":" + port + "/" + db + "?" + username + "&" + password;
             //System.out.println(connectionString);
-            ApplicationBuilder builder = new ApplicationBuilder(args);
-            Console console = builder.createConsole();
-            console.start();
+            //ApplicationBuilder builder = new ApplicationBuilder(args);
+            //Console console = builder.createConsole();
+            //console.start();
+
+            // Launch the GUI
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                        if ("Nimbus".equals(info.getName())) {
+                            UIManager.setLookAndFeel(info.getClassName());
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    // If Nimbus is not available, use the default L&F
+                    try {
+                        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                    } catch (Exception ex) {
+                        System.err.println("Error setting LookAndFeel: " + ex.getMessage());
+                    }
+                }
+                AuthFrame authFrame = new AuthFrame();
+                authFrame.setVisible(true);
+            });
         } catch (Exception e) {
             System.err.println("Ошибка запуска приложения: " + e.getMessage());
         }
