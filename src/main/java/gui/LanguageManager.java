@@ -109,6 +109,9 @@ public class LanguageManager {
         ru.put("clear_filter", "Очистить фильтр");
         ru.put("cancel", "Отмена");
         ru.put("all_values", "Все значения");
+        ru.put("map_window_title", "Карта координат");
+        ru.put("legend", "Легенда");
+        ru.put("error_open_map", "Ошибка при открытии карты: ");
         
         // English
         Map<String, String> en = new HashMap<>();
@@ -191,6 +194,9 @@ public class LanguageManager {
         en.put("clear_filter", "Clear Filter");
         en.put("cancel", "Cancel");
         en.put("all_values", "All values");
+        en.put("map_window_title", "Coordinate Map");
+        en.put("legend", "Legend");
+        en.put("error_open_map", "Error opening map: ");
         
         // Spanish (Honduras)
         Map<String, String> es = new HashMap<>();
@@ -273,6 +279,9 @@ public class LanguageManager {
         es.put("clear_filter", "Limpiar Filtro");
         es.put("cancel", "Cancelar");
         es.put("all_values", "Todos los valores");
+        es.put("map_window_title", "Mapa de Coordenadas");
+        es.put("legend", "Leyenda");
+        es.put("error_open_map", "Error al abrir el mapa: ");
         
         translations.put("ru", ru);
         translations.put("en", en);

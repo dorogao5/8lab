@@ -2,6 +2,7 @@ package gui;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -30,7 +31,7 @@ public class MainAppFrame extends JFrame {
     private VehicleTableModel vehicleTableModel;
     private JTable table;
     private LanguageManager languageManager;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     // UI components that need to be updated when language changes
     private RoundedButton addButton, deleteButton, sortButton, saveButton, accountButton;
@@ -175,6 +176,7 @@ public class MainAppFrame extends JFrame {
         // Add action listeners
         infoButton.addActionListener(e -> showCollectionInfo());
         helpButton.addActionListener(e -> showHelpDialog());
+        mapButton.addActionListener(e -> showMapWindow());
         
         bottomButtonPanel.add(infoButton);
         bottomButtonPanel.add(helpButton);
@@ -221,15 +223,47 @@ public class MainAppFrame extends JFrame {
         table.setForeground(AuthFrame.FOREGROUND_COLOR);
         table.setGridColor(new Color(100, 100, 100));
         
-        // Fix header colors - make it same as table background
-        table.getTableHeader().setBackground(AuthFrame.MAIN_BACKGROUND_COLOR);
-        table.getTableHeader().setForeground(AuthFrame.FOREGROUND_COLOR);
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
-        table.getTableHeader().setOpaque(true);
+        // Enable table grid display
+        table.setShowGrid(true);
+        table.setShowHorizontalLines(true);
+        table.setShowVerticalLines(true);
+        table.setIntercellSpacing(new Dimension(1, 1));
         
-        // Center text in header cells
-        ((javax.swing.table.DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer())
-            .setHorizontalAlignment(SwingConstants.CENTER);
+        // Fix header colors - create custom renderer to override Nimbus theme
+        table.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
+            {
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setOpaque(true);
+            }
+            
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, 
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component comp = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                comp.setBackground(AuthFrame.MAIN_BACKGROUND_COLOR);
+                comp.setForeground(AuthFrame.FOREGROUND_COLOR);
+                comp.setFont(new Font("Arial", Font.BOLD, 12));
+                
+                // Add borders to separate header cells and from table content
+                if (comp instanceof JLabel) {
+                    // Add bottom border (2px) and right border (1px) for column separation
+                    // First column gets left border too, last column doesn't need right border
+                    if (column == 0) {
+                        // First column: left, bottom, right borders
+                        ((JLabel) comp).setBorder(BorderFactory.createMatteBorder(0, 1, 2, 1, AuthFrame.TEXT_FIELD_BORDER_COLOR));
+                    } else if (column == table.getColumnCount() - 1) {
+                        // Last column: bottom border only (right border already from previous cell)
+                        ((JLabel) comp).setBorder(BorderFactory.createMatteBorder(0, 0, 2, 1, AuthFrame.TEXT_FIELD_BORDER_COLOR));
+                    } else {
+                        // Middle columns: bottom and right borders
+                        ((JLabel) comp).setBorder(BorderFactory.createMatteBorder(0, 0, 2, 1, AuthFrame.TEXT_FIELD_BORDER_COLOR));
+                    }
+                }
+                
+                return comp;
+            }
+        });
         
         table.setRowHeight(25);
         table.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -311,7 +345,7 @@ public class MainAppFrame extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Sort section
+        // Sort section - all columns available for sorting
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel sortLabel = new JLabel(languageManager.getText("sort_by"));
         sortLabel.setForeground(AuthFrame.FOREGROUND_COLOR);
@@ -319,12 +353,12 @@ public class MainAppFrame extends JFrame {
 
         gbc.gridx = 1;
         JComboBox<String> sortCombo = new JComboBox<>();
-        String[] columns = {languageManager.getText("id"), languageManager.getText("name"), 
-                           languageManager.getText("coordinates_x"), languageManager.getText("coordinates_y"),
-                           languageManager.getText("creation"), languageManager.getText("engine_power"),
-                           languageManager.getText("type"), languageManager.getText("fuel_type"),
-                           languageManager.getText("owner")};
-        for (String col : columns) {
+        String[] allColumns = {languageManager.getText("id"), languageManager.getText("name"), 
+                              languageManager.getText("coordinates_x"), languageManager.getText("coordinates_y"),
+                              languageManager.getText("creation"), languageManager.getText("engine_power"),
+                              languageManager.getText("type"), languageManager.getText("fuel_type"),
+                              languageManager.getText("owner")};
+        for (String col : allColumns) {
             sortCombo.addItem(col);
         }
         if (preselectedColumn != null) {
@@ -347,7 +381,7 @@ public class MainAppFrame extends JFrame {
         orderCombo.setForeground(AuthFrame.FOREGROUND_COLOR);
         mainPanel.add(orderCombo, gbc);
 
-        // Filter section
+        // Filter section - only type, fuel_type, owner
         gbc.gridx = 0; gbc.gridy = 2;
         JLabel filterLabel = new JLabel(languageManager.getText("filter_by"));
         filterLabel.setForeground(AuthFrame.FOREGROUND_COLOR);
@@ -356,9 +390,9 @@ public class MainAppFrame extends JFrame {
         gbc.gridx = 1;
         JComboBox<String> filterCombo = new JComboBox<>();
         filterCombo.addItem(languageManager.getText("all_values"));
-        for (String col : columns) {
-            filterCombo.addItem(col);
-        }
+        filterCombo.addItem(languageManager.getText("type"));
+        filterCombo.addItem(languageManager.getText("fuel_type"));
+        filterCombo.addItem(languageManager.getText("owner"));
         filterCombo.setBackground(AuthFrame.TEXT_FIELD_BACKGROUND);
         filterCombo.setForeground(AuthFrame.FOREGROUND_COLOR);
         mainPanel.add(filterCombo, gbc);
@@ -369,11 +403,10 @@ public class MainAppFrame extends JFrame {
         mainPanel.add(valueLabel, gbc);
 
         gbc.gridx = 1;
-        // Create a card panel to switch between text field and combo box
         JPanel valueInputPanel = new JPanel(new CardLayout());
         valueInputPanel.setOpaque(false);
         
-        // Text field for regular filtering
+        // Text field for owner filtering
         JTextField valueField = new JTextField(15);
         valueField.setBackground(AuthFrame.TEXT_FIELD_BACKGROUND);
         valueField.setForeground(AuthFrame.FOREGROUND_COLOR);
@@ -381,7 +414,7 @@ public class MainAppFrame extends JFrame {
         
         // Combo boxes for enum filtering
         JComboBox<String> vehicleTypeFilterCombo = new JComboBox<>();
-        vehicleTypeFilterCombo.addItem(""); // NULL option
+        vehicleTypeFilterCombo.addItem("");
         for (VehicleType type : VehicleType.values()) {
             vehicleTypeFilterCombo.addItem(type.name());
         }
@@ -389,7 +422,7 @@ public class MainAppFrame extends JFrame {
         vehicleTypeFilterCombo.setForeground(AuthFrame.FOREGROUND_COLOR);
         
         JComboBox<String> fuelTypeFilterCombo = new JComboBox<>();
-        fuelTypeFilterCombo.addItem(""); // NULL option
+        fuelTypeFilterCombo.addItem("");
         for (FuelType type : FuelType.values()) {
             fuelTypeFilterCombo.addItem(type.name());
         }
@@ -400,13 +433,13 @@ public class MainAppFrame extends JFrame {
         valueInputPanel.add(vehicleTypeFilterCombo, "vehicleType");
         valueInputPanel.add(fuelTypeFilterCombo, "fuelType");
         
-        // Add listener to switch input method based on selected filter column
+        // Switch input method based on selected filter column
         filterCombo.addActionListener(e -> {
             int selectedIndex = filterCombo.getSelectedIndex();
             CardLayout cl = (CardLayout) valueInputPanel.getLayout();
-            if (selectedIndex == 7) { // Vehicle Type column
+            if (selectedIndex == 1) { // Type column
                 cl.show(valueInputPanel, "vehicleType");
-            } else if (selectedIndex == 8) { // Fuel Type column
+            } else if (selectedIndex == 2) { // Fuel Type column
                 cl.show(valueInputPanel, "fuelType");
             } else {
                 cl.show(valueInputPanel, "text");
@@ -425,16 +458,22 @@ public class MainAppFrame extends JFrame {
             String filterValue = "";
             int filterColumnIndex = filterCombo.getSelectedIndex();
             
-            if (filterColumnIndex == 7) { // Vehicle Type
+            // Map filter combo indices to actual column indices
+            int actualColumnIndex = -1;
+            if (filterColumnIndex == 1) actualColumnIndex = 6; // type
+            else if (filterColumnIndex == 2) actualColumnIndex = 7; // fuel_type
+            else if (filterColumnIndex == 3) actualColumnIndex = 8; // owner
+            
+            if (filterColumnIndex == 1) { // Type
                 filterValue = (String) vehicleTypeFilterCombo.getSelectedItem();
-            } else if (filterColumnIndex == 8) { // Fuel Type
+            } else if (filterColumnIndex == 2) { // Fuel Type
                 filterValue = (String) fuelTypeFilterCombo.getSelectedItem();
             } else {
                 filterValue = valueField.getText();
             }
             
             applySortFilter(sortCombo.getSelectedIndex(), orderCombo.getSelectedIndex() == 0, 
-                           filterColumnIndex, filterValue);
+                           actualColumnIndex, filterValue);
             dialog.dispose();
         });
 
@@ -460,9 +499,10 @@ public class MainAppFrame extends JFrame {
         List<Vehicle> vehicleList = new ArrayList<>(collection.values());
         
         // Apply filter first
-        if (filterColumn > 0 && !filterValue.trim().isEmpty()) {
+        if (filterColumn >= 0 && !filterValue.trim().isEmpty()) {
             vehicleList = vehicleList.stream().filter(vehicle -> {
-                String cellValue = getCellValueAsString(vehicle, filterColumn - 1);
+                String cellValue = getCellValueAsString(vehicle, filterColumn);
+                if (cellValue == null) cellValue = "";
                 return cellValue.toLowerCase().contains(filterValue.toLowerCase());
             }).collect(ArrayList::new, (list, item) -> list.add(item), ArrayList::addAll);
         }
@@ -1181,5 +1221,14 @@ public class MainAppFrame extends JFrame {
         
         // Repaint to reflect changes
         repaint();
+    }
+
+    private void showMapWindow() {
+        try {
+            MapWindow mapWindow = new MapWindow(collectionManager.getCollection());
+            mapWindow.setVisible(true);
+        } catch (Exception ex) {
+            showStyledErrorDialog(languageManager.getText("error_open_map") + ex.getMessage());
+        }
     }
 } 

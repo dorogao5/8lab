@@ -1,11 +1,8 @@
 package ru.lab;
 
-import ru.lab.builder.ApplicationBuilder;
-import ru.lab.builder.Console;
 import gui.AuthFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
 
 /**
  * Главный класс для запуска приложения.
@@ -49,14 +46,9 @@ public class Main {
                 if(parameterName.equals("password")) {
                     password = arg;
                 }
-                //System.out.println(arg);
             }
 
             connectionString = "jdbc:postgresql://" + host + ":" + port + "/" + db + "?" + username + "&" + password;
-            //System.out.println(connectionString);
-            //ApplicationBuilder builder = new ApplicationBuilder(args);
-            //Console console = builder.createConsole();
-            //console.start();
 
             // Launch the GUI
             SwingUtilities.invokeLater(() -> {
