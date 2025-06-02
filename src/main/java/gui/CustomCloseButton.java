@@ -7,14 +7,33 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 
 public class CustomCloseButton extends JButton {
-    private Color normalBackgroundColor = new Color(80, 80, 80); // Slightly darker
-    private Color hoverBackgroundColor = new Color(110, 110, 110);
-    private Color pressedBackgroundColor = new Color(60, 60, 60);
-    private Color crossColor = new Color(220, 220, 220); // Brighter cross
+    // private Color normalBackgroundColor = new Color(80, 80, 80); // Slightly darker
+    // private Color hoverBackgroundColor = new Color(110, 110, 110);
+    // private Color pressedBackgroundColor = new Color(60, 60, 60);
+    private Color normalBackgroundColor;
+    private Color hoverBackgroundColor;
+    private Color pressedBackgroundColor;
+    private Color crossColor = new Color(220, 220, 220); // Brighter cross for good contrast
     private boolean hovered = false;
 
     public CustomCloseButton() {
         super("X");
+
+        this.normalBackgroundColor = AuthFrame.MAIN_BACKGROUND_COLOR; // Match main background
+        // Derive hover and pressed colors from the normal background
+        this.hoverBackgroundColor = normalBackgroundColor.brighter();
+        if (this.hoverBackgroundColor.equals(normalBackgroundColor)) { // Handle cases like black
+            this.hoverBackgroundColor = new Color(Math.min(255, normalBackgroundColor.getRed() + 25),
+                                                Math.min(255, normalBackgroundColor.getGreen() + 25),
+                                                Math.min(255, normalBackgroundColor.getBlue() + 25));
+        }
+        this.pressedBackgroundColor = normalBackgroundColor.darker();
+        if (this.pressedBackgroundColor.equals(normalBackgroundColor)) { // Handle cases like white
+            this.pressedBackgroundColor = new Color(Math.max(0, normalBackgroundColor.getRed() - 25),
+                                                  Math.max(0, normalBackgroundColor.getGreen() - 25),
+                                                  Math.max(0, normalBackgroundColor.getBlue() - 25));
+        }
+
         setContentAreaFilled(false);
         setBorderPainted(false);
         setFocusPainted(false);

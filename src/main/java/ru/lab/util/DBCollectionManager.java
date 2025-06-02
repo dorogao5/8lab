@@ -50,7 +50,9 @@ public class DBCollectionManager {
                         rset1.getInt("x_coord"),
                         rset1.getInt("y_coord"));
 
-                Date creationDate= rset1.getDate("creation_date");
+                Timestamp creationTimestamp = rset1.getTimestamp("creation_date");
+                Date creationDate = creationTimestamp != null ? new Date(creationTimestamp.getTime()) : new Date();
+                
                 float enginePower = rset1.getFloat("engine_power");
 
                 String vehicleType1 = rset1.getString("vehicle_type");
@@ -76,7 +78,7 @@ public class DBCollectionManager {
             ps1.setString(1, vehicle.getName());
             ps1.setInt(2, (int) vehicle.getCoordinates().getX());
             ps1.setInt(3, vehicle.getCoordinates().getY());
-            ps1.setDate(4, new java.sql.Date(vehicle.getCreationDate().getTime()));
+            ps1.setTimestamp(4, new Timestamp(vehicle.getCreationDate().getTime()));
             ps1.setFloat(5, vehicle.getEnginePower());
             ps1.setString(6, vehicle.getType() == null ? null : vehicle.getType().toString());
             ps1.setString(7, vehicle.getFuelType() == null ? null : vehicle.getFuelType().toString());

@@ -63,6 +63,7 @@ public class DBUserManager {
     }
 
     public boolean loginUser(String username, String password) {
+        currentUser = null;
         try {
             PreparedStatement ps1 = conn.prepareStatement(LOGIN_USERNAME);
             ps1.setString(1, username);
